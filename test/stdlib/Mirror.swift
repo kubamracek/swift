@@ -24,6 +24,8 @@
 
 // REQUIRES: executable_test
 // REQUIRES: shell
+// UNSUPPORTED: freestanding
+// REQUIRES: xxx
 
 import StdlibUnittest
 

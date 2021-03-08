@@ -275,7 +275,7 @@ internal func _getEnumCaseName<T>(_ value: T) -> UnsafePointer<CChar>?
 
 @_silgen_name("swift_OpaqueSummary")
 internal func _opaqueSummary(_ metadata: Any.Type) -> UnsafePointer<CChar>?
-
+/*
 /// Do our best to print a value that cannot be printed directly.
 @_semantics("optimize.sil.specialize.generic.never")
 internal func _adHocPrint_unlocked<T, TargetStream: TextOutputStream>(
@@ -370,7 +370,7 @@ internal func _adHocPrint_unlocked<T, TargetStream: TextOutputStream>(
     }
   }
 }
-
+*/
 @usableFromInline
 @_semantics("optimize.sil.specialize.generic.never")
 internal func _print_unlocked<T, TargetStream: TextOutputStream>(
@@ -384,8 +384,19 @@ internal func _print_unlocked<T, TargetStream: TextOutputStream>(
   // Note: _isOptional doesn't work here when T == Any, hence we
   // use a more elaborate formulation:
   if _openExistential(type(of: value as Any), do: _isOptional) {
-    let debugPrintable = value as! CustomDebugStringConvertible
-    debugPrintable.debugDescription.write(to: &target)
+    let o = value as! Optional<Any>
+    switch o {
+    case .some(let value):
+      var result = "Optional("
+      let isStringLike = value is String || value is Character
+      if isStringLike { result += "\"" }
+      print(value, terminator: "", to: &result)
+      if isStringLike { result += "\"" }
+      result += ")"
+      target.write(result)
+    case .none:
+      target.write("nil")
+    }
     return
   }
 
@@ -404,19 +415,23 @@ internal func _print_unlocked<T, TargetStream: TextOutputStream>(
     return
   }
 
+  /*
   if case let debugPrintableObject as CustomDebugStringConvertible = value {
     debugPrintableObject.debugDescription.write(to: &target)
     return
   }
+  */
 
-  let mirror = Mirror(reflecting: value)
-  _adHocPrint_unlocked(value, mirror, &target, isDebugPrint: false)
+  target.write("?")
+  //let mirror = Mirror(reflecting: value)
+  //_adHocPrint_unlocked(value, mirror, &target, isDebugPrint: false)
 }
 
 //===----------------------------------------------------------------------===//
 // `debugPrint`
 //===----------------------------------------------------------------------===//
 
+/*
 @_semantics("optimize.sil.specialize.generic.never")
 @inline(never)
 public func _debugPrint_unlocked<T, TargetStream: TextOutputStream>(
@@ -437,8 +452,9 @@ public func _debugPrint_unlocked<T, TargetStream: TextOutputStream>(
     return
   }
 
-  let mirror = Mirror(reflecting: value)
-  _adHocPrint_unlocked(value, mirror, &target, isDebugPrint: true)
+  target.write("?")
+  //let mirror = Mirror(reflecting: value)
+  //_adHocPrint_unlocked(value, mirror, &target, isDebugPrint: true)
 }
 
 @_semantics("optimize.sil.specialize.generic.never")
@@ -505,8 +521,10 @@ internal func _dumpPrint_unlocked<T, TargetStream: TextOutputStream>(
     }
   }
 
-  _adHocPrint_unlocked(value, mirror, &target, isDebugPrint: true)
+  target.write("?")
+  //_adHocPrint_unlocked(value, mirror, &target, isDebugPrint: true)
 }
+*/
 
 //===----------------------------------------------------------------------===//
 // OutputStreams

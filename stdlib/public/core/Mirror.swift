@@ -691,7 +691,7 @@ extension String {
   ///     // Prints "Point(x: 21, y: 30)"
   public init<Subject>(reflecting subject: Subject) {
     self.init()
-    _debugPrint_unlocked(subject, &self)
+    _print_unlocked(subject, &self)
   }
 }
 

@@ -88,7 +88,7 @@ void *swift::swift_slowAlloc(size_t size, size_t alignMask) {
   void *p;
   // This check also forces "default" alignment to use AlignedAlloc.
   if (alignMask <= MALLOC_ALIGN_MASK) {
-#if defined(__APPLE__)
+#if 0
     p = malloc_zone_malloc(DEFAULT_ZONE(), size);
 #else
     p = malloc(size);
@@ -121,7 +121,7 @@ void *swift::swift_slowAlloc(size_t size, size_t alignMask) {
 //   consistent with allocation with the same alignment.
 void swift::swift_slowDealloc(void *ptr, size_t bytes, size_t alignMask) {
   if (alignMask <= MALLOC_ALIGN_MASK) {
-#if defined(__APPLE__)
+#if 0
     malloc_zone_free(DEFAULT_ZONE(), ptr);
 #else
     free(ptr);

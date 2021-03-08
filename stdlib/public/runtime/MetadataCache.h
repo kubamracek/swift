@@ -1318,7 +1318,7 @@ public:
       *completionQueue = queueEntry;
       return true;
     });
-
+    /*
     // Diagnose unbreakable dependency cycles.
     //
     // Note that we only do this if we find a second dependency link ---
@@ -1330,7 +1330,7 @@ public:
       checkMetadataDependencyCycle(queueEntry->Value, dependency,
                                    otherDependency);
     }
-
+    */
     return success;
   }
 

@@ -6,6 +6,7 @@
 // RUN: %target-run %t/a.out
 
 // REQUIRES: executable_test
+// UNSUPPORTED: freestanding
 
 import A
 import B

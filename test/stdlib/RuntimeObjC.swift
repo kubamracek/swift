@@ -6,6 +6,7 @@
 // RUN: %target-run %t.out
 // REQUIRES: executable_test
 // REQUIRES: objc_interop
+// REQUIRES: xxx
 
 import Swift
 import StdlibUnittest

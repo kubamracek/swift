@@ -278,7 +278,9 @@ mangleSymbolNameForSymbolicMangling(const SymbolicMangling &mangling,
       llvm_unreachable("unhandled referent");
   }
   
-  return finalize();
+  auto s = finalize();
+  printf("mangleSymbolNameForSymbolicMangling %s\n", s.c_str());
+  return s;
 }
 
 std::string IRGenMangler::mangleSymbolNameForAssociatedConformanceWitness(

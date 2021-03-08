@@ -2,6 +2,7 @@
 // RUN: %target-jit-run -parse-stdlib %S/Reflection.swift -- %S/Inputs/shuffle.jpg | %FileCheck %S/Reflection.swift
 
 // REQUIRES: swift_interpreter
+// REQUIRES: xxx
 
 // Only run this test when we build host tools (e.g. bin/swift-frontend), avoid running it for standalone stdlib builds.
 // Standalone stdlib builds use downloadable toolchains from swift.org, which are codesigned in a way that doesn't let

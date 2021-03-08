@@ -4909,6 +4909,13 @@ swift::swift_getWitnessTable(const ProtocolConformanceDescriptor *conformance,
 
   auto &cache = getCache(genericTable);
   auto result = cache.getOrInsert(type, conformance, instantiationArgs);
+  /*
+  auto *td = type->getTypeContextDescriptor();
+  auto n = td->Name.get();
+  auto *p = conformance->getProtocol();
+  auto n2 = p->Name.get();
+  printf("swift_getWitnessTable(%s, %s) -> %p\n", n, n2, result.second);
+  */
 
   // Our returned 'status' is the witness table itself.
   return uniqueForeignWitnessTableRef(result.second);
@@ -4988,6 +4995,8 @@ swift_getAssociatedTypeWitnessSlowImpl(
     (const char *)(uintptr_t(witness) &
                    ~ProtocolRequirementFlags::AssociatedTypeMangledNameBit);
 
+  //printf("Looking up %s\n", mangledNameBase);
+
   // Check whether the mangled name has the prefix byte indicating that
   // the mangled name is relative to the protocol itself.
   bool inProtocolContext = false;
@@ -5004,6 +5013,8 @@ swift_getAssociatedTypeWitnessSlowImpl(
   // Extract the mangled name itself.
   StringRef mangledName =
     Demangle::makeSymbolicMangledNameStringRef(mangledNameBase);
+
+  //printf("Looking up %s\n", mangledName.str().c_str());
 
   // Demangle the associated type.
   TypeLookupErrorOr<TypeInfo> result = TypeInfo();
@@ -5053,10 +5064,15 @@ swift_getAssociatedTypeWitnessSlowImpl(
   if (error || !assocTypeMetadata) {
     const char *errStr = error ? error->copyErrorString()
                                : "NULL metadata but no error was provided";
+    //auto conformingTypeNameInfo = StringRef();
+    //auto conformingTypeName = StringRef();
+    //auto assocTypeName = StringRef();
+    ///*
     auto conformingTypeNameInfo = swift_getTypeName(conformingType, true);
     StringRef conformingTypeName(conformingTypeNameInfo.data,
                                  conformingTypeNameInfo.length);
     StringRef assocTypeName = findAssociatedTypeName(protocol, assocType);
+    //*/
     fatalError(0,
                "failed to demangle witness for associated type '%s' in "
                "conformance '%s: %s' from mangled name '%s' - %s\n",
@@ -5886,6 +5902,7 @@ static void checkAllocatorDebugEnvironmentVariables(void *context) {
 }
 
 void *MetadataAllocator::Allocate(size_t size, size_t alignment) {
+  return malloc(size);
   assert(Tag != 0);
   assert(alignment <= alignof(void*));
   assert(size % alignof(void*) == 0);
@@ -5972,6 +5989,7 @@ void *MetadataAllocator::Allocate(size_t size, size_t alignment) {
 
 void MetadataAllocator::Deallocate(const void *allocation, size_t size,
                                    size_t Alignment) {
+  return free((void*)allocation);
   __asan_poison_memory_region(allocation, size);
 
   if (size > PoolRange::MaxPoolAllocationSize) {

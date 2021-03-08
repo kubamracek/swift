@@ -20,6 +20,7 @@
 // REQUIRES: executable_test
 
 // REQUIRES: objc_interop
+// REQUIRES: xxx
 
 // rdar://problem/56959761
 // UNSUPPORTED: OS=watchos

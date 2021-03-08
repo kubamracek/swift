@@ -690,9 +690,80 @@ class alignas(sizeof(void*) * 2) SideTableRefCountBits : public RefCountBitsT<Re
 // Similarly, storing the new side table pointer into refCounts is a
 // store-release, but most other stores into refCounts are store-relaxed.
 
+/*
 template <typename RefCountBits>
 class RefCounts {
+  RefCountBits refCounts;
+public:
+  enum Initialized_t { Initialized };
+  enum Immortal_t { Immortal };
+  RefCounts() = default;
+  constexpr RefCounts(Initialized_t) : refCounts(RefCountBits(0, 1)) {}
+  constexpr RefCounts(Immortal_t) : refCounts(RefCountBits(RefCountBits::Immortal)) {}
+  void init() { refCounts = RefCountBits(0, 1); }
+  void initForNotFreeing() { refCounts = RefCountBits(0, 2); }
+  void initImmortal() { refCounts = RefCountBits(RefCountBits::Immortal); }
+  void setIsImmortal(bool immortal) { refCounts.setIsImmortal(immortal); }
+  void setPureSwiftDeallocation(bool nonobjc) { refCounts.setPureSwiftDeallocation(nonobjc); }
+  bool getPureSwiftDeallocation() { return refCounts.pureSwiftDeallocation(); }
+  void init(InlineRefCountBits newBits) { refCounts = newBits; }
+  void increment(uint32_t inc = 1) { refCounts.incrementStrongExtraRefCount(inc); }
+  void incrementNonAtomic(uint32_t inc = 1) { refCounts.incrementStrongExtraRefCount(inc); }
+  bool tryIncrement() { return true; }
+  bool tryIncrementNonAtomic() { return true; }
+  bool decrementShouldDeinit(uint32_t dec) { return true; }
+  bool decrementShouldDeinitNonAtomic(uint32_t dec) { return true; }
+  void decrementAndMaybeDeinit(uint32_t dec) { }
+  void decrementAndMaybeDeinitNonAtomic(uint32_t dec) { }
+  void decrementFromOneNonAtomic() { }
+  uint32_t getCount() const { return 0; }
+  bool isUniquelyReferenced() const { return true; }
+  bool isDeiniting() const { return true; }
+  bool hasSideTable() const { return true; }
+  void *getSideTable() const { return nullptr; }
+  bool canBeFreedNow() const { return true; }
+  uint32_t getWeakCount() const { return 0; }
+  template <PerformDeinit performDeinit>
+  bool doDecrement(uint32_t dec) { return true; }
+  template <PerformDeinit performDeinit>
+  bool doDecrementNonAtomic(uint32_t dec) { return true; }
+  void incrementUnowned(uint32_t inc) {}
+  void incrementUnownedNonAtomic(uint32_t inc) {}
+  bool decrementUnownedShouldFree(uint32_t dec) { return true; }
+  bool decrementUnownedShouldFreeNonAtomic(uint32_t dec) { return true; }
+  uint32_t getUnownedCount() const { return 0; }
+  HeapObjectSideTableEntry* formWeakReference() { return nullptr; }
+  void incrementWeak() {}
+  bool decrementWeakShouldCleanUp() { return true; }
+  bool decrementWeakShouldCleanUpNonAtomic() { return true; }
+};
+*/
+
+template <typename T>
+class NotActuallyAtomic {
+  T value;
+public:
+  NotActuallyAtomic() = default;
+  NotActuallyAtomic(T value) : value(value) {}
+  T load(std::memory_order mo) const { return value; }
+  void store(T newvalue, std::memory_order mo) { value = newvalue; }
+  bool compare_exchange_weak(T &expected, T desired, std::memory_order mo1, std::memory_order mo2 = std::memory_order_seq_cst) {
+    if (memcmp(&value, &expected, sizeof(T)) != 0) {
+      memcpy(&expected, &value, sizeof(T));
+      return false;
+    }
+    memcpy(&value, &desired, sizeof(T));
+    return true;
+  }
+};
+
+template <typename RefCountBits>
+class RefCounts {
+  #if SWIFT_STDLIB_SINGLE_THREADED_RUNTIME
+  NotActuallyAtomic<RefCountBits> refCounts;
+  #else
   std::atomic<RefCountBits> refCounts;
+  #endif
 
   // Out-of-line slow paths.
 

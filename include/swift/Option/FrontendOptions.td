@@ -619,6 +619,15 @@ def emit_sorted_sil : Flag<["-"], "emit-sorted-sil">,
   HelpText<"When printing SIL, print out all sil entities sorted by name to "
            "ease diffing">;
 
+def emit_dead_strippable_symbols : Flag<["-"], "emit-dead-strippable-symbols">,
+  HelpText<"Emit metadata, variables and functions in a way that a linker can "
+           "remove them if they're unused, even across modules (when linking "
+           "statically).">;
+
+def vtable_method_elimination : Flag<["-"], "vtable-method-elimination">, HelpText<"TODO">;
+def wtable_method_elimination : Flag<["-"], "wtable-method-elimination">, HelpText<"TODO">;
+def enable_associated_type_accessors : Flag<["-"], "enable-associated-type-accessors">, HelpText<"TODO">;
+
 def emit_syntax : Flag<["-"], "emit-syntax">,
   HelpText<"Parse input file(s) and emit the Syntax tree(s) as JSON">, ModeOpt;
 

@@ -112,7 +112,10 @@ extension Collection {
       } else {
         result += ", "
       }
-      debugPrint(item, terminator: "", to: &result)
+      let isStringLike = item is String || item is Character
+      if isStringLike { result += "\"" }
+      print(item, terminator: "", to: &result)
+      if isStringLike { result += "\"" }
     }
     result += type != nil ? "])" : "]"
     return result

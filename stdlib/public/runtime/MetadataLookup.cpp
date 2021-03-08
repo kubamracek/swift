@@ -692,6 +692,7 @@ _findContextDescriptor(Demangle::NodePointer node,
       (const ContextDescriptor *)symbolicNode->getIndex());
   }
 
+/*
   // Fast-path lookup for standard library type references with short manglings.
   if (symbolicNode->getNumChildren() >= 2
       && symbolicNode->getChild(0)->getKind() == Node::Kind::Module
@@ -709,6 +710,7 @@ _findContextDescriptor(Demangle::NodePointer node,
 
 #include "swift/Demangling/StandardTypesMangling.def"
   }
+*/
   
   const ContextDescriptor *foundContext = nullptr;
   auto &T = TypeMetadataRecords.get();
@@ -1010,7 +1012,7 @@ _gatherGenericParameters(const ContextDescriptor *context,
     auto metadataVector = genericArgs.vec();
     return [=] {
       std::string str;
-
+          /*
       str += "_gatherGenericParameters: context: ";
 
 #if !defined(SWIFT_RUNTIME_MACHO_NO_DYLD)
@@ -1044,7 +1046,7 @@ _gatherGenericParameters(const ContextDescriptor *context,
       else
         str += "<null>";
       str += " - ";
-
+*/
       return str;
     };
   };

@@ -526,12 +526,12 @@ NodePointer Demangler::demangleSymbol(StringRef MangledName,
         std::function<SymbolicReferenceResolver_t> SymbolicReferenceResolver) {
   DemangleInitRAII state(*this, MangledName,
                          std::move(SymbolicReferenceResolver));
-
+  /*
   // Demangle old-style class and protocol names, which are still used in the
   // ObjC metadata.
   if (nextIf("_Tt"))
     return demangleOldSymbolAsNode(Text, *this);
-
+  */
   unsigned PrefixLength = getManglingPrefixLength(MangledName);
   if (PrefixLength == 0)
     return nullptr;

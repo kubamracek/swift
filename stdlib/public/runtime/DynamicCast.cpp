@@ -118,8 +118,10 @@ static HeapObject * getNonNullSrcObject(OpaqueValue *srcValue,
     return object;
   }
 
-  std::string srcTypeName = nameForMetadata(srcType);
-  std::string destTypeName = nameForMetadata(destType);
+  // std::string srcTypeName = nameForMetadata(srcType);
+  // std::string destTypeName = nameForMetadata(destType);
+  std::string srcTypeName = "?";
+  std::string destTypeName = "?";
   swift::fatalError(/* flags = */ 0,
                     "Found unexpected null pointer value"
                     " while trying to cast value of type '%s' (%p)"
@@ -132,6 +134,7 @@ static HeapObject * getNonNullSrcObject(OpaqueValue *srcValue,
 /******************************* Bridge Helpers *******************************/
 /******************************************************************************/
 
+#if SWIFT_OBJC_INTEROP
 #define _bridgeAnythingToObjectiveC                                 \
   MANGLE_SYM(s27_bridgeAnythingToObjectiveCyyXlxlF)
 SWIFT_CC(swift) SWIFT_RUNTIME_STDLIB_API
@@ -356,6 +359,7 @@ tryCastFromObjCBridgeableToClass(
     return DynamicCastResult::Failure;
   }
 }
+#endif
 
 /******************************************************************************/
 /****************************** SwiftValue Boxing *****************************/
@@ -448,6 +452,7 @@ tryCastToSwiftClass(
   }
 }
 
+#if SWIFT_OBJC_INTEROP
 static DynamicCastResult
 tryCastToObjectiveCClass(
   OpaqueValue *destLocation, const Metadata *destType,
@@ -523,6 +528,7 @@ tryCastToForeignClass(
 
   return DynamicCastResult::Failure;
 }
+#endif
 
 /******************************************************************************/
 /***************************** Enum Destination *******************************/
@@ -1421,6 +1427,7 @@ tryCastToClassExistentialViaSwiftValue(
   }
 
 #if SWIFT_OBJC_INTEROP
+#if SWIFT_OBJC_INTEROP
   auto object = bridgeAnythingToSwiftValueObject(
     srcValue, srcType, takeOnSuccess);
   destExistentialLocation->Value = object;
@@ -1435,6 +1442,9 @@ tryCastToClassExistentialViaSwiftValue(
   auto object = _bridgeAnythingToObjectiveC(srcValue, srcType);
   destExistentialLocation->Value = object;
   return DynamicCastResult::SuccessViaCopy;
+#endif
+#else
+  return DynamicCastResult::Failure;
 #endif
 }
 
@@ -1786,13 +1796,17 @@ static tryCastFunctionType *selectCasterForDest(const Metadata *destType) {
   case MetadataKind::Class:
     return tryCastToSwiftClass;
   case MetadataKind::Struct: {
+    ///*
     const auto targetDescriptor = cast<StructMetadata>(destType)->Description;
+    #if SWIFT_OBJC_INTEROP
     if (targetDescriptor == &NOMINAL_TYPE_DESCR_SYM(SS)) {
       return tryCastToString;
     }
+    #endif
     if (targetDescriptor == &STRUCT_TYPE_DESCR_SYM(s11AnyHashable)) {
       return tryCastToAnyHashable;
     }
+    #if SWIFT_OBJC_INTEROP
     if (targetDescriptor == &NOMINAL_TYPE_DESCR_SYM(Sa)) {
       return tryCastToArray;
     }
@@ -1802,14 +1816,18 @@ static tryCastFunctionType *selectCasterForDest(const Metadata *destType) {
     if (targetDescriptor == &NOMINAL_TYPE_DESCR_SYM(Sh)) {
       return tryCastToSet;
     }
+    #endif
+    //*/
     return tryCastToStruct;
   }
   case MetadataKind::Enum:
     return tryCastToEnum;
   case MetadataKind::Optional:
     return tryCastToOptional;
+#if SWIFT_OBJC_INTEROP
   case MetadataKind::ForeignClass:
     return tryCastToForeignClass;
+#endif
   case MetadataKind::Opaque:
     return tryCastToOpaque;
   case MetadataKind::Tuple:
@@ -1835,8 +1853,10 @@ static tryCastFunctionType *selectCasterForDest(const Metadata *destType) {
   }
   case MetadataKind::Metatype:
    return tryCastToMetatype;
+#if SWIFT_OBJC_INTEROP
  case MetadataKind::ObjCClassWrapper:
     return tryCastToObjectiveCClass;
+#endif
   case MetadataKind::ExistentialMetatype:
    return tryCastToExistentialMetatype;
   case MetadataKind::HeapLocalVariable:
@@ -2038,6 +2058,7 @@ tryCast(
   //
   switch (destKind) {
 
+#if SWIFT_OBJC_INTEROP
   case MetadataKind::Optional: {
     // Optional supports _ObjectiveCBridgeable from an unconstrained AnyObject
     if (srcType->getKind() == MetadataKind::Existential) {
@@ -2057,18 +2078,21 @@ tryCast(
 
     break;
   }
+#endif
 
   case MetadataKind::Existential: {
     // Try general machinery for stuffing values into AnyObject:
     auto destExistentialType = cast<ExistentialTypeMetadata>(destType);
     if (destExistentialType->getRepresentation() == ExistentialTypeRepresentation::Class) {
       // Some types have custom Objective-C bridging support...
+      #if SWIFT_OBJC_INTEROP
       auto subcastResult = tryCastFromObjCBridgeableToClass(
         destLocation, destType, srcValue, srcType,
         destFailureType, srcFailureType, takeOnSuccess, mayDeferChecks);
       if (isSuccess(subcastResult)) {
         return subcastResult;
       }
+      #endif
 
       // Other types can be boxed into a __SwiftValue container...
       auto swiftValueCastResult = tryCastToClassExistentialViaSwiftValue(
@@ -2081,6 +2105,7 @@ tryCast(
     break;
   }
 
+#if SWIFT_OBJC_INTEROP
   case MetadataKind::Class:
   case MetadataKind::ObjCClassWrapper:
   case MetadataKind::ForeignClass: {
@@ -2115,7 +2140,9 @@ tryCast(
 
     break;
   }
+#endif
 
+#if SWIFT_OBJC_INTEROP
   case MetadataKind::Struct:
   case MetadataKind::Enum: {
     // Use _ObjectiveCBridgeable to bridge _from_ a class type _to_ a
@@ -2140,6 +2167,7 @@ tryCast(
     // handle a particular object.
     break;
   }
+#endif
 
   default:
     break;

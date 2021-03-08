@@ -20,6 +20,7 @@
 // RUN: %target-run %t/ArrayBridge
 // REQUIRES: executable_test
 // REQUIRES: objc_interop
+// REQUIRES: xxx
 
 import Foundation
 import ArrayBridgeObjC

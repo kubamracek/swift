@@ -262,8 +262,10 @@ swift::swift_dynamicCastFailure(const void *sourceType, const char *sourceName,
 SWIFT_NORETURN void swift::swift_dynamicCastFailure(const Metadata *sourceType,
                                                     const Metadata *targetType,
                                                     const char *message) {
-  std::string sourceName = nameForMetadata(sourceType);
-  std::string targetName = nameForMetadata(targetType);
+  // std::string sourceName = nameForMetadata(sourceType);
+  // std::string targetName = nameForMetadata(targetType);
+  std::string sourceName = "?";
+  std::string targetName = "?";
 
   swift_dynamicCastFailure(sourceType, sourceName.c_str(), 
                            targetType, targetName.c_str(), message);

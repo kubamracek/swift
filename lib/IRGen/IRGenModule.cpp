@@ -1601,7 +1601,7 @@ bool IRGenModule::useDllStorage() { return ::useDllStorage(Triple); }
 bool IRGenModule::shouldPrespecializeGenericMetadata() {
   auto canPrespecializeTarget =
       (Triple.isOSDarwin() || Triple.isTvOS() || Triple.isOSLinux());
-  if (canPrespecializeTarget && isStandardLibrary()) {
+  if (canPrespecializeTarget && isStandardLibrary() && IRGen.Opts.PrespecializeGenericMetadataForStdlib) {
     return true;
   }
   auto &context = getSwiftModule()->getASTContext();

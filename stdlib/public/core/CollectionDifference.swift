@@ -379,7 +379,7 @@ extension CollectionDifference where ChangeElement: Hashable {
     }))
   }
 }
-
+/*
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension CollectionDifference.Change: Codable where ChangeElement: Codable {
   private enum _CodingKeys: String, CodingKey {
@@ -419,3 +419,4 @@ extension CollectionDifference.Change: Codable where ChangeElement: Codable {
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension CollectionDifference: Codable where ChangeElement: Codable {}
+*/

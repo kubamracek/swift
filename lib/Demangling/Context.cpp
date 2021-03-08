@@ -41,7 +41,8 @@ NodePointer Context::demangleSymbolAsNode(llvm::StringRef MangledName) {
   if (isMangledName(MangledName)) {
     return D->demangleSymbol(MangledName);
   }
-  return demangleOldSymbolAsNode(MangledName, *D);
+  //return demangleOldSymbolAsNode(MangledName, *D);
+  return nullptr;
 }
 
 NodePointer Context::demangleTypeAsNode(llvm::StringRef MangledName) {

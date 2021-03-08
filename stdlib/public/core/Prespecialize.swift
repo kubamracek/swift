@@ -1,3 +1,5 @@
+#if _runtime(_ObjC)
+
 @inline(never)
 private func consume<T>(_ t: T) {
     withExtendedLifetime(t) { t in }
@@ -113,3 +115,5 @@ internal func _prespecialize() {
   consume(UnsafeBufferPointer<Int8>.self)
   consume(UnsafePointer<Int8>.self)
 }
+
+#endif

@@ -268,6 +268,8 @@ class LinkEntity {
     /// is stored in the data.
     DefaultAssociatedConformanceAccessor,
 
+    DefaultAssociatedTypeMetadataAccessFunction,
+
     /// An descriptor for an base conformance within a protocol, which
     /// will alias the TargetProtocolRequirement descripting this
     /// particular base conformance.
@@ -329,6 +331,8 @@ class LinkEntity {
     /// The instantiation function for a generic protocol witness table.
     /// The secondary pointer is a ProtocolConformance*.
     GenericProtocolWitnessTableInstantiationFunction,
+
+    AssociatedTypeMetadataAccessFunction,
 
     /// A function which returns the witness table for a protocol-constrained
     /// associated type of a protocol.  The secondary pointer is a
@@ -946,6 +950,24 @@ public:
     return entity;
   }
 
+  static LinkEntity     
+   forAssociatedTypeMetadataAccessFunction(const ProtocolConformance *C,        
+                                           AssociatedType association) {        
+     LinkEntity entity;     
+     entity.setForProtocolConformanceAndAssociatedType(     
+                      Kind::AssociatedTypeMetadataAccessFunction, C,        
+                      association.getAssociation());        
+     return entity;     
+   }        
+
+    static LinkEntity       
+   forDefaultAssociatedTypeMetadataAccessFunction(AssociatedType association) {     
+     LinkEntity entity;     
+     entity.setForDecl(Kind::DefaultAssociatedTypeMetadataAccessFunction,       
+                       association.getAssociation());       
+     return entity;     
+   }
+
   static LinkEntity
   forBaseConformanceDescriptor(BaseConformance conformance) {
     LinkEntity entity;
@@ -1169,7 +1191,12 @@ public:
   }
 
   AssociatedTypeDecl *getAssociatedType() const {
-    assert(getKind() == Kind::AssociatedTypeDescriptor);
+    if (getKind() == Kind::AssociatedTypeMetadataAccessFunction)
+       return getAssociatedTypeByIndex(getProtocolConformance(),        
+                               LINKENTITY_GET_FIELD(Data, AssociatedTypeIndex));        
+
+      assert(getKind() == Kind::AssociatedTypeDescriptor ||     
+            getKind() == Kind::DefaultAssociatedTypeMetadataAccessFunction);
     return reinterpret_cast<AssociatedTypeDecl *>(Pointer);
   }
 

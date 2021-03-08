@@ -393,6 +393,7 @@ UnsafeMutablePointerTestSuite.test("assign/immutable") {
 %         ('UnsafeRawPointer', 'UnsafeRawPointer'),
 %         ('UnsafeMutableRawPointer', 'UnsafeMutableRawPointer')]:
 
+/*
 ${SelfName}TestSuite.test("customMirror") {
   // Ensure that the custom mirror works properly, including when the raw value
   // is greater than Int.max
@@ -408,6 +409,7 @@ ${SelfName}TestSuite.test("customMirror") {
   fatalError("Unimplemented")
 #endif
 }
+*/
 
 ${SelfName}TestSuite.test("customPlaygroundQuickLook") {
   // Ensure that the custom playground quicklook works properly, including when

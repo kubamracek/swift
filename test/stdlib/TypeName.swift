@@ -7,6 +7,8 @@
 // RUN: %target-run %t/Onone.out
 
 // REQUIRES: executable_test
+// UNSUPPORTED: freestanding
+// REQUIRES: xxx
 
 import StdlibUnittest
 

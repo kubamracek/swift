@@ -270,7 +270,7 @@ extension Optional: CustomDebugStringConvertible {
     switch self {
     case .some(let value):
       var result = "Optional("
-      debugPrint(value, terminator: "", to: &result)
+      print(value, terminator: "", to: &result)
       result += ")"
       return result
     case .none:

@@ -2557,6 +2557,10 @@ FunctionPointer irgen::emitVirtualMethodValue(IRGenFunction &IGF,
 
   auto classDecl = cast<ClassDecl>(method.getDecl()->getDeclContext());
 
+  auto entity = LinkEntity::forMethodDescriptor(method);
+  auto mangled = entity.mangleAsString();
+  auto typeId = llvm::MetadataAsValue::get(*IGF.IGM.LLVMContext, llvm::MDString::get(*IGF.IGM.LLVMContext, mangled));
+
   // Find the vtable entry we're interested in.
   auto methodInfo =
     IGF.IGM.getClassMetadataLayout(classDecl).getMethodInfo(IGF, method);
@@ -2567,7 +2571,39 @@ FunctionPointer irgen::emitVirtualMethodValue(IRGenFunction &IGF,
     auto slot = IGF.emitAddressAtOffset(metadata, offset,
                                         signature.getType()->getPointerTo(),
                                         IGF.IGM.getPointerAlignment());
-    auto fnPtr = IGF.emitInvariantLoad(slot);
+
+    //llvm::Function *checkedLoadIntrinsic = llvm::Intrinsic::getDeclaration(&IGF.IGM.Module, llvm::Intrinsic::type_checked_load);
+    llvm::Value *fnPtr;
+
+    if (IGF.IGM.getOptions().VTableMethodElimination) {
+      auto name = "__checked_load_" + mangled;
+      llvm::Function *checkedLoadStub = IGF.IGM.Module.getFunction(name);
+      if (!checkedLoadStub) {
+        checkedLoadStub = llvm::Function::Create(
+          llvm::FunctionType::get(IGF.IGM.Int8PtrTy, { IGF.IGM.Int8PtrTy }, false),
+                                        llvm::GlobalValue::ExternalLinkage,
+                                        "__checked_load_" + mangled);
+        IGF.IGM.Module.getFunctionList().push_back(checkedLoadStub);
+      }
+
+      SmallVector<llvm::Value*, 8> args;
+      auto ptr = IGF.Builder.CreateBitCast(slot, IGF.IGM.Int8PtrTy);
+      args.push_back(ptr.getAddress());
+      //args.push_back(llvm::ConstantInt::get(IGF.IGM.Int32Ty, 0));
+      //args.push_back(typeId);
+      // llvm::errs() << "irgen::emitVirtualMethodValue" << "\n";
+      // llvm::errs() << *args[0] << "\n";
+      // llvm::errs() << *args[1] << "\n";
+      // llvm::errs() << *args[2] << "\n";
+      llvm::Value *fnPtr = IGF.Builder.CreateCall(checkedLoadStub, args);
+      //auto CheckResult = IGF.Builder.CreateExtractValue(checkedLoad, 1);
+      //auto fnPtr = IGF.Builder.CreateExtractValue(checkedLoad, 0);
+      fnPtr = IGF.Builder.CreateBitCast(fnPtr, signature.getType()->getPointerTo());
+    } else {
+      fnPtr = IGF.emitInvariantLoad(slot);
+    }
+
+    //auto fnPtr = IGF.emitInvariantLoad(slot);
     auto &schema = IGF.getOptions().PointerAuth.SwiftClassMethods;
     auto authInfo =
       PointerAuthInfo::emit(IGF, schema, slot.getAddress(), method);

@@ -253,6 +253,13 @@ public:
   /// Emit names of struct stored properties and enum cases.
   unsigned EnableReflectionNames : 1;
 
+  /// Emit metadata, variables and functions in a way that a linker can remove
+  /// them if they're unused, even across modules (when linking statically).
+  unsigned EmitDeadStrippableSymbols : 1;
+  unsigned VTableMethodElimination : 1;
+  unsigned WTableMethodElimination : 1;
+  unsigned EnableAssociatedTypeAccessors : 1;
+
   /// Emit mangled names of anonymous context descriptors.
   unsigned EnableAnonymousContextMangledNames : 1;
 
@@ -273,6 +280,9 @@ public:
   /// Create metadata specializations for generic types at statically known type
   /// arguments.
   unsigned PrespecializeGenericMetadata : 1;
+
+  /// XXX
+  unsigned PrespecializeGenericMetadataForStdlib : 1;
 
   /// The path to load legacy type layouts from.
   StringRef ReadLegacyTypeInfoPath;
@@ -351,10 +361,14 @@ public:
         PrintInlineTree(false), EmbedMode(IRGenEmbedMode::None),
         LLVMLTOKind(IRGenLLVMLTOKind::None), HasValueNamesSetting(false),
         ValueNames(false), EnableReflectionMetadata(true),
-        EnableReflectionNames(true), EnableAnonymousContextMangledNames(false),
+        EnableReflectionNames(true), EmitDeadStrippableSymbols(false),
+        VTableMethodElimination(false), WTableMethodElimination(false),
+        EnableAssociatedTypeAccessors(false),
+        EnableAnonymousContextMangledNames(false),
         ForcePublicLinkage(false), LazyInitializeClassMetadata(false),
         LazyInitializeProtocolConformances(false), DisableLegacyTypeInfo(false),
-        PrespecializeGenericMetadata(false), UseIncrementalLLVMCodeGen(true),
+        PrespecializeGenericMetadata(false), PrespecializeGenericMetadataForStdlib(true),
+        UseIncrementalLLVMCodeGen(true),
         UseSwiftCall(false), UseTypeLayoutValueHandling(true),
         GenerateProfile(false), EnableDynamicReplacementChaining(false),
         DisableRoundTripDebugTypes(false), DisableDebuggerShadowCopies(false),

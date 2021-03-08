@@ -570,13 +570,20 @@ emitGlobalList(IRGenModule &IGM, ArrayRef<llvm::WeakTrackingVH> handles,
   auto var = new llvm::GlobalVariable(IGM.Module, varTy, isConstant, linkage,
                                       init, name);
   var->setSection(section);
-  var->setAlignment(llvm::MaybeAlign(alignment.getValue()));
-  disableAddressSanitizer(IGM, var);
+
+  // Do not set alignment and don't set disableAddressSanitizer on @llvm.used
+  // and @llvm.compiler.used. Doing so confuses LTO (merging) and they're not
+  // going to end up as real global symbols in the binary anyways.
+  if (name != "llvm.used" && name != "llvm.compiler.used") {
+    var->setAlignment(llvm::MaybeAlign(alignment.getValue()));
+    disableAddressSanitizer(IGM, var);
+  }
 
   // Mark the variable as used if doesn't have external linkage.
   // (Note that we'd specifically like to not put @llvm.used in itself.)
   if (llvm::GlobalValue::isLocalLinkage(linkage))
-    IGM.addUsedGlobal(var);
+    if (!IGM.IRGen.Opts.EmitDeadStrippableSymbols)
+      IGM.addUsedGlobal(var);
   return var;
 }
 
@@ -1545,7 +1552,7 @@ static std::string getDynamicReplacementSection(IRGenModule &IGM) {
     llvm_unreachable("Don't know how to emit field records table for "
                      "the selected object format.");
   case llvm::Triple::MachO:
-    sectionName = "__TEXT, __swift5_replace, regular, no_dead_strip";
+    sectionName = "__TEXT, __swift5_replace, regular";
     break;
   case llvm::Triple::ELF:
   case llvm::Triple::Wasm:
@@ -1566,7 +1573,7 @@ static std::string getDynamicReplacementSomeSection(IRGenModule &IGM) {
     llvm_unreachable("Don't know how to emit field records table for "
                      "the selected object format.");
   case llvm::Triple::MachO:
-    sectionName = "__TEXT, __swift5_replac2, regular, no_dead_strip";
+    sectionName = "__TEXT, __swift5_replac2, regular";
     break;
   case llvm::Triple::ELF:
   case llvm::Triple::Wasm:
@@ -1878,7 +1885,7 @@ static std::string getEntryPointSection(IRGenModule &IGM) {
     llvm_unreachable("Don't know how to emit field records table for "
                      "the selected object format.");
   case llvm::Triple::MachO:
-    sectionName = "__TEXT, __swift5_entry, regular, no_dead_strip";
+    sectionName = "__TEXT, __swift5_entry, regular";
     break;
   case llvm::Triple::ELF:
   case llvm::Triple::Wasm:
@@ -2012,8 +2019,10 @@ void irgen::updateLinkageForDefinition(IRGenModule &IGM,
 
   // Everything externally visible is considered used in Swift.
   // That mostly means we need to be good at not marking things external.
-  if (LinkInfo::isUsed(IRL))
-    IGM.addUsedGlobal(global);
+  if (LinkInfo::isUsed(IRL)) {
+    if (!IGM.IRGen.Opts.EmitDeadStrippableSymbols)
+      IGM.addUsedGlobal(global);
+  }
 }
 
 LinkInfo LinkInfo::get(IRGenModule &IGM, const LinkEntity &entity,
@@ -2106,7 +2115,8 @@ llvm::Function *irgen::createFunction(IRGenModule &IGM,
   // Everything externally visible is considered used in Swift.
   // That mostly means we need to be good at not marking things external.
   if (linkInfo.isUsed()) {
-    IGM.addUsedGlobal(fn);
+    if (!IGM.IRGen.Opts.EmitDeadStrippableSymbols)
+      IGM.addUsedGlobal(fn);
   }
 
   return fn;
@@ -2154,7 +2164,8 @@ llvm::GlobalVariable *swift::irgen::createVariable(
   // Everything externally visible is considered used in Swift.
   // That mostly means we need to be good at not marking things external.
   if (linkInfo.isUsed()) {
-    IGM.addUsedGlobal(var);
+    if (!IGM.IRGen.Opts.EmitDeadStrippableSymbols)
+      IGM.addUsedGlobal(var);
   }
 
   if (IGM.DebugInfo && !DbgTy.isNull() && linkInfo.isForDefinition())
@@ -2997,7 +3008,7 @@ static llvm::GlobalVariable *createGOTEquivalent(IRGenModule &IGM,
       (!IGM.Triple.isOSDarwin() || IGM.Triple.getArch() != llvm::Triple::x86)) {
     gotEquivalent->setUnnamedAddr(llvm::GlobalValue::UnnamedAddr::Global);
   } else {
-    ApplyIRLinkage(IRLinkage::InternalLinkOnceODR)
+    ApplyIRLinkage(IRLinkage::ExternalExport)
       .to(gotEquivalent);
   }
 
@@ -3457,6 +3468,55 @@ llvm::Constant *IRGenModule::emitSwiftProtocols() {
   if (SwiftProtocols.empty())
     return nullptr;
 
+  StringRef sectionName;
+  switch (TargetInfo.OutputObjectFormat) {
+  case llvm::Triple::UnknownObjectFormat:
+    llvm_unreachable("Don't know how to emit protocols for "
+                     "the selected object format.");
+  case llvm::Triple::MachO:
+    sectionName = "__TEXT, __swift5_protos, regular";
+    break;
+  case llvm::Triple::ELF:
+  case llvm::Triple::Wasm:
+    sectionName = "swift5_protocols";
+    break;
+  case llvm::Triple::XCOFF:
+  case llvm::Triple::COFF:
+    sectionName = ".sw5prt$B";
+    break;
+  }
+
+  if (IRGen.Opts.EmitDeadStrippableSymbols) {
+    for (auto *protocol : SwiftProtocols) {
+      auto ref = getTypeEntityReference(protocol);
+      auto name = "\x01l_protocol_" + std::string(ref.getValue()->getName());
+      auto var = new llvm::GlobalVariable(
+          Module, ProtocolRecordTy, /*isConstant*/ true,
+          llvm::GlobalValue::PrivateLinkage, /*initializer*/ nullptr, name);
+
+      llvm::Constant *relativeAddr =
+          emitDirectRelativeReference(ref.getValue(), var, {0});
+      llvm::Constant *recordFields[] = {relativeAddr};
+      auto record = llvm::ConstantStruct::get(ProtocolRecordTy, recordFields);
+      var->setInitializer(record);
+      var->setSection(sectionName);
+      var->setAlignment(llvm::MaybeAlign(4));
+
+      disableAddressSanitizer(*this, var);
+      addUsedGlobal(var);
+
+      // Add an entry into llvm.used.conditional
+      llvm::Metadata *metadata[] = {
+        llvm::ConstantAsMetadata::get(var), // Which variable from llvm.used are we conditionalizing
+        llvm::ConstantAsMetadata::get(llvm::ConstantInt::get(llvm::Type::getInt32Ty(Module.getContext()), 0)), // Type = 0
+        llvm::ConstantAsMetadata::get(ref.getValue()), // Reference that triggers liveness
+      };
+      auto *usedConditional = Module.getOrInsertNamedMetadata("llvm.used.conditional");
+      usedConditional->addOperand(llvm::MDNode::get(Module.getContext(), metadata));
+    }
+    return nullptr;
+  }
+
   // Define the global variable for the protocol list.
   ConstantInitBuilder builder(*this);
   auto recordsArray = builder.beginArray(ProtocolRecordTy);
@@ -3481,24 +3541,6 @@ llvm::Constant *IRGenModule::emitSwiftProtocols() {
                                             /*isConstant*/ true,
                                             llvm::GlobalValue::PrivateLinkage);
 
-  StringRef sectionName;
-  switch (TargetInfo.OutputObjectFormat) {
-  case llvm::Triple::UnknownObjectFormat:
-    llvm_unreachable("Don't know how to emit protocols for "
-                     "the selected object format.");
-  case llvm::Triple::MachO:
-    sectionName = "__TEXT, __swift5_protos, regular, no_dead_strip";
-    break;
-  case llvm::Triple::ELF:
-  case llvm::Triple::Wasm:
-    sectionName = "swift5_protocols";
-    break;
-  case llvm::Triple::XCOFF:
-  case llvm::Triple::COFF:
-    sectionName = ".sw5prt$B";
-    break;
-  }
-
   var->setSection(sectionName);
   
   disableAddressSanitizer(*this, var);
@@ -3519,6 +3561,69 @@ void IRGenModule::addProtocolConformance(ConformanceDescription &&record) {
 llvm::Constant *IRGenModule::emitProtocolConformances() {
   if (ProtocolConformances.empty())
     return nullptr;
+
+  StringRef sectionName;
+  switch (TargetInfo.OutputObjectFormat) {
+  case llvm::Triple::UnknownObjectFormat:
+    llvm_unreachable("Don't know how to emit protocol conformances for "
+                     "the selected object format.");
+  case llvm::Triple::MachO:
+    sectionName = "__TEXT, __swift5_proto, regular";
+    break;
+  case llvm::Triple::ELF:
+  case llvm::Triple::Wasm:
+    sectionName = "swift5_protocol_conformances";
+    break;
+  case llvm::Triple::XCOFF:
+  case llvm::Triple::COFF:
+    sectionName = ".sw5prtc$B";
+    break;
+  }
+
+  if (1) {
+    for (const auto &record : ProtocolConformances) {
+      auto conformance = record.conformance;
+      auto entity = LinkEntity::forProtocolConformanceDescriptor(conformance);
+      auto name =
+          "\x01l_protocol_conformance_" + std::string(entity.mangleAsString());
+      auto var = new llvm::GlobalVariable(
+          Module, RelativeAddressTy, /*isConstant*/ true,
+          llvm::GlobalValue::PrivateLinkage, /*initializer*/ nullptr, name);
+
+      auto descriptor =
+          getAddrOfLLVMVariable(entity, ConstantInit(), DebugTypeInfo());
+      llvm::Constant *relativeAddr =
+          emitDirectRelativeReference(descriptor, var, {});
+      var->setInitializer(relativeAddr);
+      var->setSection(sectionName);
+      var->setAlignment(llvm::MaybeAlign(4));
+
+      disableAddressSanitizer(*this, var);
+      addUsedGlobal(var);
+
+      if (IRGen.Opts.EmitDeadStrippableSymbols) {
+      // Add an entry into llvm.used.conditional
+      auto *protocol = record.conformance->getProtocol();
+      auto *type = record.conformance->getType()->getAnyNominal();
+
+      // Ensure the variables are at least forward-declared.
+      getAddrOfLLVMVariable(LinkEntity::forProtocolDescriptor(protocol), ConstantInit(), DebugTypeInfo());
+      getAddrOfLLVMVariable(LinkEntity::forNominalTypeDescriptor(type), ConstantInit(), DebugTypeInfo());
+
+      llvm::Metadata *metadata[] = {
+        llvm::ConstantAsMetadata::get(var), // Which variable from llvm.used are we conditionalizing
+        llvm::ConstantAsMetadata::get(llvm::ConstantInt::get(llvm::Type::getInt32Ty(Module.getContext()), 1)), // Type = 1
+        llvm::MDNode::get(Module.getContext(), {
+          llvm::ConstantAsMetadata::get(GlobalVars[LinkEntity::forProtocolDescriptor(protocol)] /* not the got. */), // Reference that triggers liveness
+          llvm::ConstantAsMetadata::get(GlobalVars[LinkEntity::forNominalTypeDescriptor(type)] /* not the got. */), // Reference that triggers liveness
+        }),
+      };
+      auto *usedConditional = Module.getOrInsertNamedMetadata("llvm.used.conditional");
+      usedConditional->addOperand(llvm::MDNode::get(Module.getContext(), metadata));
+      }
+    }
+    return nullptr;
+  }
 
   // Define the global variable for the conformance list.
   ConstantInitBuilder builder(*this);
@@ -3541,24 +3646,6 @@ llvm::Constant *IRGenModule::emitProtocolConformances() {
                                           /*isConstant*/ true,
                                           llvm::GlobalValue::PrivateLinkage);
 
-  StringRef sectionName;
-  switch (TargetInfo.OutputObjectFormat) {
-  case llvm::Triple::UnknownObjectFormat:
-    llvm_unreachable("Don't know how to emit protocol conformances for "
-                     "the selected object format.");
-  case llvm::Triple::MachO:
-    sectionName = "__TEXT, __swift5_proto, regular, no_dead_strip";
-    break;
-  case llvm::Triple::ELF:
-  case llvm::Triple::Wasm:
-    sectionName = "swift5_protocol_conformances";
-    break;
-  case llvm::Triple::XCOFF:
-  case llvm::Triple::COFF:
-    sectionName = ".sw5prtc$B";
-    break;
-  }
-
   var->setSection(sectionName);
 
   disableAddressSanitizer(*this, var);
@@ -3573,7 +3660,7 @@ llvm::Constant *IRGenModule::emitTypeMetadataRecords() {
   std::string sectionName;
   switch (TargetInfo.OutputObjectFormat) {
   case llvm::Triple::MachO:
-    sectionName = "__TEXT, __swift5_types, regular, no_dead_strip";
+    sectionName = "__TEXT, __swift5_types, regular";
     break;
   case llvm::Triple::ELF:
   case llvm::Triple::Wasm:
@@ -3592,6 +3679,53 @@ llvm::Constant *IRGenModule::emitTypeMetadataRecords() {
   if (RuntimeResolvableTypes.empty())
     return nullptr;
 
+  auto generateRecord = [this](TypeEntityReference ref,
+                               llvm::GlobalVariable *var,
+                               ArrayRef<unsigned> baseIndices) {
+    // Form the relative address, with the type reference kind in the low bits.
+    llvm::Constant *relativeAddr =
+        emitDirectRelativeReference(ref.getValue(), var, baseIndices);
+    unsigned lowBits = static_cast<unsigned>(ref.getKind());
+    if (lowBits != 0) {
+      relativeAddr = llvm::ConstantExpr::getAdd(
+          relativeAddr, llvm::ConstantInt::get(RelativeAddressTy, lowBits));
+    }
+
+    llvm::Constant *recordFields[] = {relativeAddr};
+    auto record = llvm::ConstantStruct::get(TypeMetadataRecordTy, recordFields);
+    return record;
+  };
+
+  if (IRGen.Opts.EmitDeadStrippableSymbols) {
+    for (auto type : RuntimeResolvableTypes) {
+      auto ref = getTypeEntityReference(type);
+      auto name =
+          "\x01l_type_metadata_" + std::string(ref.getValue()->getName());
+      auto var = new llvm::GlobalVariable(
+          Module, TypeMetadataRecordTy, /*isConstant*/ true,
+          llvm::GlobalValue::PrivateLinkage, /*initializer*/ nullptr, name);
+
+      auto record = generateRecord(ref, var, {0});
+      var->setInitializer(record);
+      var->setSection(sectionName);
+      var->setAlignment(llvm::MaybeAlign(4));
+
+      disableAddressSanitizer(*this, var);
+      addUsedGlobal(var);
+
+      // Add an entry into llvm.used.conditional
+      llvm::Metadata *metadata[] = {
+        llvm::ConstantAsMetadata::get(var), // Which variable from llvm.used are we conditionalizing
+        llvm::ConstantAsMetadata::get(llvm::ConstantInt::get(llvm::Type::getInt32Ty(Module.getContext()), 0)), // Type = 0
+        llvm::ConstantAsMetadata::get(ref.getValue()), // Reference that triggers liveness
+      };
+      auto *usedConditional = Module.getOrInsertNamedMetadata("llvm.used.conditional");
+      usedConditional->addOperand(llvm::MDNode::get(Module.getContext(), metadata));
+    }
+
+    return nullptr;
+  }
+
   // Define the global variable for the conformance list.
   // We have to do this before defining the initializer since the entries will
   // contain offsets relative to themselves.
@@ -3609,20 +3743,8 @@ llvm::Constant *IRGenModule::emitTypeMetadataRecords() {
   SmallVector<llvm::Constant *, 8> elts;
   for (auto type : RuntimeResolvableTypes) {
     auto ref = getTypeEntityReference(type);
-
-    // Form the relative address, with the type reference kind in the low bits.
     unsigned arrayIdx = elts.size();
-    llvm::Constant *relativeAddr =
-      emitDirectRelativeReference(ref.getValue(), var, { arrayIdx, 0 });
-    unsigned lowBits = static_cast<unsigned>(ref.getKind());
-    if (lowBits != 0) {
-      relativeAddr = llvm::ConstantExpr::getAdd(relativeAddr,
-                       llvm::ConstantInt::get(RelativeAddressTy, lowBits));
-    }
-
-    llvm::Constant *recordFields[] = { relativeAddr };
-    auto record = llvm::ConstantStruct::get(TypeMetadataRecordTy,
-                                            recordFields);
+    auto record = generateRecord(ref, var, { arrayIdx, 0 });
     elts.push_back(record);
   }
 
@@ -3642,7 +3764,7 @@ llvm::Constant *IRGenModule::emitFieldDescriptors() {
   std::string sectionName;
   switch (TargetInfo.OutputObjectFormat) {
   case llvm::Triple::MachO:
-    sectionName = "__TEXT, __swift5_fieldmd, regular, no_dead_strip";
+    sectionName = "__TEXT, __swift5_fieldmd, regular";
     break;
   case llvm::Triple::ELF:
   case llvm::Triple::Wasm:
@@ -4015,8 +4137,11 @@ llvm::GlobalValue *IRGenModule::defineAlias(LinkEntity entity,
   ApplyIRLinkage({link.getLinkage(), link.getVisibility(), link.getDLLStorage()})
       .to(alias);
 
+  // Everything externally visible is considered used in Swift.
+  // That mostly means we need to be good at not marking things external.
   if (link.isUsed()) {
-    addUsedGlobal(alias);
+    if (!IRGen.Opts.EmitDeadStrippableSymbols)
+      addUsedGlobal(alias);
   }
 
   // Replace an existing external declaration for the address point.
@@ -4060,7 +4185,8 @@ llvm::GlobalValue *IRGenModule::defineTypeMetadata(CanType concreteType,
                                                    bool isPattern,
                                                    bool isConstant,
                                                    ConstantInitFuture init,
-                                                   llvm::StringRef section) {
+                                                   llvm::StringRef section,
+                                                   std::function< void(llvm::GlobalVariable *) > fn) {
   assert(init);
 
   auto isPrespecialized = concreteType->getAnyGeneric() &&
@@ -4095,9 +4221,12 @@ llvm::GlobalValue *IRGenModule::defineTypeMetadata(CanType concreteType,
   if (!section.empty())
     var->setSection(section);
 
+  if (fn) fn(var);
+
   LinkInfo link = LinkInfo::get(*this, entity, ForDefinition);
   if (link.isUsed())
-    addUsedGlobal(var);
+    if (!IRGen.Opts.EmitDeadStrippableSymbols)
+      addUsedGlobal(var);
 
   /// For concrete metadata, we want to use the initializer on the
   /// "full metadata", and define the "direct" address point as an alias.
@@ -4970,6 +5099,27 @@ llvm::Constant *IRGenModule::getAddrOfDifferentiabilityWitness(
   return getAddrOfLLVMVariable(entity, definition, DebugTypeInfo());
 }
 
+llvm::Function *    
+IRGenModule::getAddrOfAssociatedTypeMetadataAccessFunction(    
+                                  const NormalProtocolConformance *conformance,    
+                                  AssociatedType association) {    
+  auto forDefinition = ForDefinition;    
+
+   LinkEntity entity =   
+    LinkEntity::forAssociatedTypeMetadataAccessFunction(conformance,   
+                                                        association);    
+  llvm::Function *&entry = GlobalFuncs[entity];    
+  if (entry) {   
+    if (forDefinition) updateLinkageForDefinition(*this, entry, entity);   
+    return entry;    
+  }    
+
+   auto signature = getAssociatedTypeMetadataAccessFunctionSignature();    
+  LinkInfo link = LinkInfo::get(*this, entity, forDefinition);   
+  entry = createFunction(*this, link, signature);    
+  return entry;    
+}
+
 llvm::Function *
 IRGenModule::getAddrOfAssociatedTypeWitnessTableAccessFunction(
                                   const NormalProtocolConformance *conformance,
@@ -4989,6 +5139,25 @@ IRGenModule::getAddrOfAssociatedTypeWitnessTableAccessFunction(
   LinkInfo link = LinkInfo::get(*this, entity, forDefinition);
   entry = createFunction(*this, link, signature);
   return entry;
+}
+
+llvm::Function *    
+IRGenModule::getAddrOfDefaultAssociatedTypeMetadataAccessFunction(   
+                                 AssociatedType association) {    
+ auto forDefinition = ForDefinition;    
+
+  LinkEntity entity =   
+   LinkEntity::forDefaultAssociatedTypeMetadataAccessFunction(association);   
+ llvm::Function *&entry = GlobalFuncs[entity];    
+ if (entry) {   
+   if (forDefinition) updateLinkageForDefinition(*this, entry, entity);   
+   return entry;    
+ }    
+
+  auto signature = getAssociatedTypeMetadataAccessFunctionSignature();    
+ LinkInfo link = LinkInfo::get(*this, entity, forDefinition);   
+ entry = createFunction(*this, link, signature);    
+ return entry;    
 }
 
 llvm::Function *

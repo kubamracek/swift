@@ -59,9 +59,10 @@ public func _getTypeName(_ type: Any.Type, qualified: Bool)
 @_semantics("typeName")
 public // @testable
 func _typeName(_ type: Any.Type, qualified: Bool = true) -> String {
-  let (stringPtr, count) = _getTypeName(type, qualified: qualified)
-  return String._fromUTF8Repairing(
-    UnsafeBufferPointer(start: stringPtr, count: count)).0
+  //let (stringPtr, count) = _getTypeName(type, qualified: qualified)
+  //return String._fromUTF8Repairing(
+    //UnsafeBufferPointer(start: stringPtr, count: count)).0
+  return "?"
 }
 
 @available(macOS 10.16, iOS 14.0, watchOS 7.0, tvOS 14.0, *)

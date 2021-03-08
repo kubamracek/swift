@@ -219,6 +219,7 @@ Runtime.test("dynamicCasting with as") {
   expectTrue(someP1Ref2 as AnyObject is P1)
   expectFalse(someNotP1Ref as AnyObject is P1)
 
+  /*
   expectTrue((someP1Value as P1).success)
   expectTrue((someP1Value2 as P1).success)
   expectEqual("10 20 30 40", (someP2Value as P2).description)
@@ -271,6 +272,7 @@ Runtime.test("dynamicCasting with as") {
   expectTrue(((someP1Ref as AnyObject) as? P1)!.success)
   expectTrue(((someP1Ref2 as AnyObject) as? P1)!.success)
   expectNil(((someNotP1Ref as AnyObject) as? P1))
+  */
 
   let doesThrow: (Int) throws -> Int = { $0 }
   let doesNotThrow: (String) -> String = { $0 }
@@ -319,6 +321,7 @@ enum SomeEnum {
 }
 
 Runtime.test("typeName") {
+  /*
   expectEqual("a.SomeClass", _typeName(SomeClass.self))
   expectEqual("a.SomeStruct", _typeName(SomeStruct.self))
   expectEqual("a.SomeEnum", _typeName(SomeEnum.self))
@@ -348,6 +351,7 @@ Runtime.test("typeName") {
 
   a = Any.self
   expectEqual("Any.Protocol", _typeName(type(of: a)))
+  */
 }
 
 class SomeSubclass : SomeClass {}
@@ -357,6 +361,7 @@ class SomeConformingClass : SomeProtocol {}
 class SomeConformingSubclass : SomeConformingClass {}
 class UnicodeCläss {}
 
+/*
 Runtime.test("typeByName") {
   expectTrue(_typeByName("a.SomeClass") == SomeClass.self)
   expectTrue(_typeByName("a.SomeSubclass") == SomeSubclass.self)
@@ -374,6 +379,7 @@ Runtime.test("demangleName") {
       _stdlib_demangleName("$s1x1aAA3FooCyADyADySiSiGADySiSiGGADyADySiSiGADySiSiGGGvp"))
   expectEqual("Foobar", _stdlib_demangleName("$s13__lldb_expr_46FoobarCD"))
 }
+*/
 
 if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
   Runtime.test("demangleTruncate") {
@@ -625,15 +631,16 @@ class JustNeedAMetatype {}
 
 Reflection.test("nested existential containers") {
   let wrapped = wrap5(JustNeedAMetatype.self)
-  expectEqual("\(wrapped)", "JustNeedAMetatype")
+  //expectEqual("\(wrapped)", "JustNeedAMetatype")
 }
 
+/*
 Reflection.test("dumpToAStream") {
   var output = ""
   dump([ 42, 4242 ], to: &output)
   expectEqual("▿ 2 elements\n  - 42\n  - 4242\n", output)
 }
-
+*/
 
 class Brilliant {
   let first: Int
@@ -679,13 +686,13 @@ Reflection.test("ObjectIdentifier/CustomDebugStringConvertible") {
   let oi1 = ObjectIdentifier(obj1)
   let oi2 = ObjectIdentifier(obj2)
 
-  expectEqual(String(reflecting: oi1), String(reflecting: oi1))
-  expectNotEqual(String(reflecting: oi1), String(reflecting: oi2))
+  //expectEqual(String(reflecting: oi1), String(reflecting: oi1))
+  //expectNotEqual(String(reflecting: oi1), String(reflecting: oi2))
 
-  let p1 = UnsafeRawPointer(bitPattern: UInt(bitPattern: oi1))!
-  expectPrinted("ObjectIdentifier(\(p1))", oi1)
-  let p2 = UnsafeRawPointer(bitPattern: Int(bitPattern: oi1))!
-  expectPrinted("ObjectIdentifier(\(p2))", oi1)
+  //let p1 = UnsafeRawPointer(bitPattern: UInt(bitPattern: oi1))!
+  //expectPrinted("ObjectIdentifier(\(p1))", oi1)
+  //let p2 = UnsafeRawPointer(bitPattern: Int(bitPattern: oi1))!
+  //expectPrinted("ObjectIdentifier(\(p2))", oi1)
 
 }
 
@@ -697,8 +704,8 @@ Reflection.test("multiprotocolTypes") {
   // NonFixedExistentialMetatypeBox::Container::getNumWitnessTables.
   let obj: Q1 & Codable = C()
   let t = type(of: obj)
-  let x = String(reflecting: t)
-  expectEqual("a.C", x)
+  //let x = String(reflecting: t)
+  //expectEqual("a.C", x)
 }
 
 

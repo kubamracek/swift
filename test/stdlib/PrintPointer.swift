@@ -1,5 +1,7 @@
 // RUN: %target-run-simple-swift
 // REQUIRES: executable_test
+// UNSUPPORTED: freestanding
+// REQUIRES: xxx
 
 import StdlibUnittest
 

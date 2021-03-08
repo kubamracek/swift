@@ -4,7 +4,7 @@ func testPopFirst() {
   let str = "abc"
   var charView: String.CharacterView // expected-warning{{'CharacterView' is deprecated: Please use String directly}}
   charView = str.characters // expected-warning{{'characters' is deprecated: Please use String directly}}
-  dump(charView)
+  _ = charView
 
   var substr = str[...]
   _ = substr.popFirst() // ok
@@ -13,7 +13,7 @@ func testPopFirst() {
 
   var charSubView: Substring.CharacterView // expected-warning{{'CharacterView' is deprecated: Please use Substring directly}}
   charSubView = substr.characters // expected-warning{{'characters' is deprecated: Please use Substring directly}}
-  dump(charSubView)
+  _ = charSubView
 
   var _ = String(str.utf8) ?? "" // expected-warning{{left side of nil coalescing operator '??' has non-optional type 'String', so the right side is never used}}
   var _: String = String(str.utf8) // ok

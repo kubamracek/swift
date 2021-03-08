@@ -120,8 +120,8 @@ public func expectPrinted<T>(
   let actual = String(describing: object)
   if !patterns.contains(actual) {
     expectationFailure(
-      "expected: any of \(String(reflecting: patterns))\n"
-      + "actual: \(String(reflecting: actual))",
+      "expected: any of \(patterns)\n"
+      + "actual: \(actual)",
       trace: message(),
       stackTrace: stackTrace.pushIf(showFrame, file: file, line: line))
   }
@@ -159,7 +159,7 @@ public func expectDebugPrinted<T>(
   expectDebugPrinted(expectedOneOf: [expected], object, message(),
     stackTrace: stackTrace.pushIf(showFrame, file: file, line: line))
 }
-
+/*
 public func expectDumped<T>(
   _ expected: String, _ object: T,
   _ message: @autoclosure () -> String = "",
@@ -172,3 +172,4 @@ public func expectDumped<T>(
   expectEqual(expected, actual, message(),
     stackTrace: stackTrace.pushIf(showFrame, file: file, line: line))
 }
+*/

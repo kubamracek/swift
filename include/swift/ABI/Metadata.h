@@ -1948,6 +1948,11 @@ using TargetWitnessTablePointer =
 
 using WitnessTablePointer = TargetWitnessTablePointer<InProcess>;
 
+using AssociatedTypeAccessFunction =
+  SWIFT_CC(swift) MetadataResponse(MetadataRequest request,
+                                  const Metadata *self,
+                                  const WitnessTable *selfConformance);
+
 using AssociatedWitnessTableAccessFunction =
   SWIFT_CC(swift) WitnessTable *(const Metadata *associatedType,
                                  const Metadata *self,

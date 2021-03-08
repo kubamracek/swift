@@ -14,6 +14,7 @@
 // RUN: %target-run %t/a.out.fragile
 
 // REQUIRES: executable_test
+// UNSUPPORTED: freestanding
 
 import KeyPathMultiModule_b
 import StdlibUnittest

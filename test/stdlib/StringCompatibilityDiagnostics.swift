@@ -4,7 +4,7 @@ func testPopFirst() {
   let str = "abc"
   let charView: String.CharacterView // expected-error{{'CharacterView' is unavailable: Please use String directly}}
   _ = str.characters // expected-error{{'characters' is unavailable: Please use String directly}}
-  dump(charView)
+  _ = charView
 
   var substr = str[...]
   _ = substr.popFirst() // ok
@@ -13,6 +13,6 @@ func testPopFirst() {
 
   let charSubView: Substring.CharacterView // expected-error{{'CharacterView' is unavailable: Please use Substring directly}}
   _ = substr.characters // expected-error{{'characters' is unavailable: Please use Substring directly}}
-  dump(charSubView)
+  _ = charSubView
 }
 

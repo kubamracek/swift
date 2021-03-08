@@ -105,6 +105,7 @@ public func print(
 ///     space (`" "`).
 ///   - terminator: The string to print after all items have been printed. The
 ///     default is a newline (`"\n"`).
+/*
 public func debugPrint(
   _ items: Any...,
   separator: String = " ",
@@ -120,6 +121,7 @@ public func debugPrint(
     _debugPrint(items, separator: separator, terminator: terminator, to: &output)
   }
 }
+*/
 
 /// Writes the textual representations of the given items into the given output
 /// stream.
@@ -205,6 +207,7 @@ public func print<Target: TextOutputStream>(
 ///     default is a newline (`"\n"`).
 ///   - output: An output stream to receive the text representation of each
 ///     item.
+/*
 public func debugPrint<Target: TextOutputStream>(
   _ items: Any...,
   separator: String = " ",
@@ -213,6 +216,7 @@ public func debugPrint<Target: TextOutputStream>(
 ) {
   _debugPrint(items, separator: separator, terminator: terminator, to: &output)
 }
+*/
 
 internal func _print<Target: TextOutputStream>(
   _ items: [Any],
@@ -231,6 +235,7 @@ internal func _print<Target: TextOutputStream>(
   output.write(terminator)
 }
 
+/*
 internal func _debugPrint<Target: TextOutputStream>(
   _ items: [Any],
   separator: String = " ",
@@ -247,3 +252,4 @@ internal func _debugPrint<Target: TextOutputStream>(
   }
   output.write(terminator)
 }
+*/

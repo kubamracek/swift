@@ -1690,9 +1690,15 @@ extension Collection {
       } else {
         result += ", "
       }
-      debugPrint(k, terminator: "", to: &result)
+      let kisStringLike = k is String || k is Character
+      let visStringLike = v is String || v is Character
+      if kisStringLike { result += "\"" }
+      print(k, terminator: "", to: &result)
+      if kisStringLike { result += "\"" }
       result += ": "
-      debugPrint(v, terminator: "", to: &result)
+      if visStringLike { result += "\"" }
+      print(v, terminator: "", to: &result)
+      if visStringLike { result += "\"" }
     }
     result += "]"
     return result

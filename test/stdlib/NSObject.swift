@@ -3,6 +3,7 @@
 
 // REQUIRES: objc_interop
 // UNSUPPORTED: OS=watchos
+// REQUIRES: xxx
 
 import Foundation
 

@@ -10,6 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+/*
 /// Dumps the given object's contents using its mirror to the specified output
 /// stream.
 ///
@@ -247,3 +248,4 @@ internal func _dumpSuperclass_unlocked<TargetStream: TextOutputStream>(
   }
 }
 
+*/

@@ -8,6 +8,7 @@
 
 // REQUIRES: executable_test
 // REQUIRES: objc_interop
+// REQUIRES: xxx
 
 //
 // DO NOT add more tests to this file.  Add them to test/1_stdlib/Runtime.swift.

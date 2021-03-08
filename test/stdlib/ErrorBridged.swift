@@ -4,6 +4,7 @@
 // RUN: %target-run %t/ErrorBridged
 // REQUIRES: executable_test
 // REQUIRES: objc_interop
+// REQUIRES: xxx
 
 import StdlibUnittest
 

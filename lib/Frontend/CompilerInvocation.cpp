@@ -1569,6 +1569,28 @@ static bool ParseIRGenArgs(IRGenOptions &Opts, ArgList &Args,
     Opts.EnableReflectionNames = false;
   }
 
+  if (Args.hasArg(OPT_emit_dead_strippable_symbols)) {
+    if (!Opts.UseJIT) {
+      Opts.EmitDeadStrippableSymbols = true;
+    }
+  }
+
+  if (Args.hasArg(OPT_vtable_method_elimination)) {
+    if (!Opts.UseJIT) {
+      Opts.VTableMethodElimination = true;
+    }
+  }
+
+  if (Args.hasArg(OPT_wtable_method_elimination)) {
+    if (!Opts.UseJIT) {
+      Opts.WTableMethodElimination = true;
+    }
+  }
+
+  if (Args.hasArg(OPT_enable_associated_type_accessors)) {
+    Opts.EnableAssociatedTypeAccessors = true;
+  }
+
   if (Args.hasArg(OPT_force_public_linkage)) {
     Opts.ForcePublicLinkage = true;
   }
@@ -1586,9 +1608,11 @@ static bool ParseIRGenArgs(IRGenOptions &Opts, ArgList &Args,
     Opts.DisableLegacyTypeInfo = true;
   }
 
-  if (Args.hasArg(OPT_prespecialize_generic_metadata) && 
-      !Args.hasArg(OPT_disable_generic_metadata_prespecialization)) {
+  if (Args.hasArg(OPT_prespecialize_generic_metadata)) {
     Opts.PrespecializeGenericMetadata = true;
+  } else if (Args.hasArg(OPT_disable_generic_metadata_prespecialization)) {
+    Opts.PrespecializeGenericMetadata = false;
+    Opts.PrespecializeGenericMetadataForStdlib = false;
   }
 
   if (const Arg *A = Args.getLastArg(OPT_read_legacy_type_info_path_EQ)) {

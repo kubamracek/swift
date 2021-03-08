@@ -93,8 +93,7 @@ public func precondition(
     }
   } else if _isReleaseAssertConfiguration() {
     let error = !condition()
-    Builtin.condfail_message(error._value,
-      StaticString("precondition failure").unsafeRawPointer)
+    Builtin.condfail(error._value)
   }
 }
 
@@ -172,8 +171,7 @@ public func preconditionFailure(
     _assertionFailure("Fatal error", message(), file: file, line: line,
       flags: _fatalErrorFlags())
   } else if _isReleaseAssertConfiguration() {
-    Builtin.condfail_message(true._value,
-      StaticString("precondition failure").unsafeRawPointer)
+    Builtin.condfail(true._value)
   }
   _conditionallyUnreachable()
 }
@@ -214,7 +212,7 @@ internal func _precondition(
     }
   } else if _isReleaseAssertConfiguration() {
     let error = !condition()
-    Builtin.condfail_message(error._value, message.unsafeRawPointer)
+    Builtin.condfail(error._value)
   }
 }
 
@@ -242,8 +240,7 @@ public func _overflowChecked<T>(
         file: file, line: line, flags: _fatalErrorFlags())
     }
   } else {
-    Builtin.condfail_message(error._value,
-      StaticString("_overflowChecked failure").unsafeRawPointer)
+    Builtin.condfail(error._value)
   }
   return result
 }

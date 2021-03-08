@@ -680,12 +680,14 @@ public func _conditionallyBridgeFromObjectiveC_bridgeable<T:_ObjectiveCBridgeabl
   return result
 }
 
+/*
 public // SPI(Foundation)
 protocol _NSSwiftValue: AnyObject {
   init(_ value: Any)
   var value: Any { get }
   static var null: AnyObject { get }
 }
+*/
 
 @usableFromInline
 internal class __SwiftValue {
@@ -720,12 +722,12 @@ public func swift_unboxFromSwiftValueWithType<T>(
       result.initialize(to: value)
       return true
     }
-  } else if let box = source as? _NSSwiftValue {
+  }/* else if let box = source as? _NSSwiftValue {
     if let value = box.value as? T {
       result.initialize(to: value)
       return true
     }
-  }
+  }*/
   
   return false
 }
@@ -733,11 +735,11 @@ public func swift_unboxFromSwiftValueWithType<T>(
 // Internal stdlib SPI
 @_silgen_name("swift_swiftValueConformsTo")
 public func _swiftValueConformsTo<T>(_ type: T.Type) -> Bool {
-  if let foundationType = _foundationSwiftValueType {
+  /*if let foundationType = _foundationSwiftValueType {
     return foundationType is T.Type
-  } else {
+  } else {*/
     return __SwiftValue.self is T.Type
-  }
+  //}
 }
 
 @_silgen_name("_swift_extractDynamicValue")
@@ -756,24 +758,24 @@ extension Optional: _Unwrappable {
   }
 }
 
-private let _foundationSwiftValueType = _typeByName("Foundation.__SwiftValue") as? _NSSwiftValue.Type
+//private let _foundationSwiftValueType = _typeByName("Foundation.__SwiftValue") as? _NSSwiftValue.Type
 
 @usableFromInline
 internal var _nullPlaceholder: AnyObject {
-  if let foundationType = _foundationSwiftValueType {
+  /*if let foundationType = _foundationSwiftValueType {
     return foundationType.null
-  } else {
+  } else {*/
     return __SwiftValue.null
-  }
+  //}
 }
 
 @usableFromInline
 func _makeSwiftValue(_ value: Any) -> AnyObject {
-  if let foundationType = _foundationSwiftValueType {
+  /*if let foundationType = _foundationSwiftValueType {
     return foundationType.init(value)
-  } else {
+  } else {*/
     return __SwiftValue(value)
-  }
+  //}
 }
 
 /// Bridge an arbitrary value to an Objective-C object.

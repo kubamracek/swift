@@ -1,5 +1,7 @@
 // RUN: %target-run-simple-swift | %FileCheck %s
 // REQUIRES: executable_test
+// UNSUPPORTED: freestanding
+// REQUIRES: xxx
 
 var a : Int
 

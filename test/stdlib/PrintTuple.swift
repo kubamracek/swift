@@ -4,6 +4,8 @@
 // RUN: %target-codesign %t/main
 // RUN: %target-run %t/main
 // REQUIRES: executable_test
+// UNSUPPORTED: freestanding
+// REQUIRES: xxx
 
 import StdlibUnittest
 import PrintTestTypes
