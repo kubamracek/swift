@@ -1702,7 +1702,7 @@ bool IRGenModule::shouldPrespecializeGenericMetadata() {
       (Triple.isOSDarwin() ||
        (Triple.isOSLinux() && !(Triple.isARM() && Triple.isArch32Bit())));
   if (canPrespecializeTarget && isStandardLibrary()) {
-    return true;
+    return IRGen.Opts.PrespecializeStdlibGenericMetadata;
   }
   auto &context = getSwiftModule()->getASTContext();
   auto deploymentAvailability =

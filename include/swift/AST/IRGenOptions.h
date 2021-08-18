@@ -313,6 +313,10 @@ public:
   /// arguments.
   unsigned PrespecializeGenericMetadata : 1;
 
+  /// Create metadata specializations for generic types at statically known type
+  /// arguments, when building the standard library.
+  unsigned PrespecializeStdlibGenericMetadata : 1;
+
   /// The path to load legacy type layouts from.
   StringRef ReadLegacyTypeInfoPath;
 
@@ -394,7 +398,9 @@ public:
         EnableReflectionNames(true), EnableAnonymousContextMangledNames(false),
         ForcePublicLinkage(false), LazyInitializeClassMetadata(false),
         LazyInitializeProtocolConformances(false), DisableLegacyTypeInfo(false),
-        PrespecializeGenericMetadata(false), UseIncrementalLLVMCodeGen(true),
+        PrespecializeGenericMetadata(false),
+        PrespecializeStdlibGenericMetadata(true),
+        UseIncrementalLLVMCodeGen(true),
         UseTypeLayoutValueHandling(true),
         GenerateProfile(false), EnableDynamicReplacementChaining(false),
         DisableRoundTripDebugTypes(false), DisableDebuggerShadowCopies(false),
