@@ -369,6 +369,9 @@ class SILSymbolVisitorImpl : public ASTVisitor<SILSymbolVisitorImpl> {
   /// Returns `true` if the neither the nominal nor its members have any symbols
   /// that need to be visited because it has non-public linkage.
   bool canSkipNominal(const NominalTypeDecl *NTD) {
+    if (NTD->getASTContext().LangOpts.hasFeature(Feature::Embedded))
+      return true;
+
     if (!Ctx.getOpts().PublicSymbolsOnly)
       return false;
 
