@@ -20,9 +20,9 @@ public func main() {
   start(p: Concrete())
 }
 
-// CHECK-LABEL: declare hidden swiftcc void @"$s4main8ConcreteVACycfC"()
+// CHECK-LABEL: define swiftcc void @"$s4main8ConcreteVACycfC"()
 
-// CHECK-LABEL: declare hidden swiftcc void @"$s4main5start1pyx_tAA6PlayerRzlFAA8ConcreteV_Tg5"()
+// CHECK-LABEL: define {{.*}}void @"$s4main5start1pyx_tAA6PlayerRzlFAA8ConcreteV_Tg5"()
 
 // CHECK-LABEL: define swiftcc void @"$s4mainAAyyF"()
 // CHECK-NEXT:  entry:
