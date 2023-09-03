@@ -270,6 +270,12 @@ const AvailableAttr *DeclAttributes::getUnavailable(
       if (AvAttr->isUnconditionallyUnavailable())
         return AvAttr;
 
+      if (AvAttr->getPlatformAgnosticAvailability() == PlatformAgnosticAvailabilityKind::NoEmbedded) {
+        if (ctx.LangOpts.hasFeature(Feature::Embedded)) {
+          return AvAttr;
+        }
+      }
+
       switch (AvAttr->getVersionAvailability(ctx)) {
       case AvailableVersionComparison::Available:
       case AvailableVersionComparison::PotentiallyUnavailable:
@@ -463,6 +469,7 @@ static bool isShortAvailable(const DeclAttribute *DA) {
   case PlatformAgnosticAvailabilityKind::Unavailable:
   case PlatformAgnosticAvailabilityKind::UnavailableInSwift:
   case PlatformAgnosticAvailabilityKind::NoAsync:
+  case PlatformAgnosticAvailabilityKind::NoEmbedded:
     return false;
   case PlatformAgnosticAvailabilityKind::None:
   case PlatformAgnosticAvailabilityKind::SwiftVersionSpecific:
@@ -2030,6 +2037,7 @@ bool AvailableAttr::isUnconditionallyUnavailable() const {
   case PlatformAgnosticAvailabilityKind::SwiftVersionSpecific:
   case PlatformAgnosticAvailabilityKind::PackageDescriptionVersionSpecific:
   case PlatformAgnosticAvailabilityKind::NoAsync:
+  case PlatformAgnosticAvailabilityKind::NoEmbedded:
     return false;
 
   case PlatformAgnosticAvailabilityKind::Unavailable:
@@ -2048,6 +2056,7 @@ bool AvailableAttr::isUnconditionallyDeprecated() const {
   case PlatformAgnosticAvailabilityKind::SwiftVersionSpecific:
   case PlatformAgnosticAvailabilityKind::PackageDescriptionVersionSpecific:
   case PlatformAgnosticAvailabilityKind::NoAsync:
+  case PlatformAgnosticAvailabilityKind::NoEmbedded:
     return false;
 
   case PlatformAgnosticAvailabilityKind::Deprecated:
@@ -2077,6 +2086,10 @@ AvailableVersionComparison AvailableAttr::getVersionAvailability(
   // Unconditional unavailability.
   if (isUnconditionallyUnavailable())
     return AvailableVersionComparison::Unavailable;
+
+  if (getPlatformAgnosticAvailability() == PlatformAgnosticAvailabilityKind::NoEmbedded)
+    if (ctx.LangOpts.hasFeature(Feature::Embedded))
+      return AvailableVersionComparison::Unavailable;
 
   llvm::VersionTuple queryVersion = getActiveVersion(ctx);
 

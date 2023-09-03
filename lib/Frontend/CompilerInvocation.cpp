@@ -1321,6 +1321,10 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
     HadError = true;
   }
 
+  if (Opts.hasFeature(Feature::Embedded)) {
+    Opts.UnavailableDeclOptimizationMode = UnavailableDeclOptimization::Complete;
+  }
+
   return HadError || UnsupportedOS || UnsupportedArch;
 }
 

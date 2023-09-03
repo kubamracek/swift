@@ -299,8 +299,12 @@ llvm::Optional<AvailableAttrDeclPair> Decl::getSemanticUnavailableAttr() const {
 }
 
 static bool isUnconditionallyUnavailable(const Decl *D) {
-  if (auto unavailableAttrAndDecl = D->getSemanticUnavailableAttr())
-    return unavailableAttrAndDecl->first->isUnconditionallyUnavailable();
+  if (auto unavailableAttrAndDecl = D->getSemanticUnavailableAttr()) {
+    if (unavailableAttrAndDecl->first->isUnconditionallyUnavailable()) return true;
+    if (unavailableAttrAndDecl->first->getPlatformAgnosticAvailability() == PlatformAgnosticAvailabilityKind::NoEmbedded)
+      if (D->getASTContext().LangOpts.hasFeature(Feature::Embedded))
+        return true;
+  }
 
   return false;
 }
