@@ -44,12 +44,13 @@ using namespace swift;
 ExportContext::ExportContext(
     DeclContext *DC, AvailabilityContext runningOSVersion,
     FragileFunctionKind kind, bool spi, bool exported, bool implicit,
-    bool deprecated, llvm::Optional<PlatformKind> unavailablePlatformKind)
+    bool deprecated, bool unavailableInEmbedded, llvm::Optional<PlatformKind> unavailablePlatformKind)
     : DC(DC), RunningOSVersion(runningOSVersion), FragileKind(kind) {
   SPI = spi;
   Exported = exported;
   Implicit = implicit;
   Deprecated = deprecated;
+  UnavailableInEmbedded = unavailableInEmbedded;
   if (unavailablePlatformKind) {
     Unavailable = 1;
     Platform = unsigned(*unavailablePlatformKind);
@@ -180,7 +181,7 @@ static void forEachOuterDecl(DeclContext *DC, Fn fn) {
 }
 
 static void computeExportContextBits(
-    ASTContext &Ctx, Decl *D, bool *spi, bool *implicit, bool *deprecated,
+    ASTContext &Ctx, Decl *D, bool *spi, bool *implicit, bool *deprecated, bool *unavailableInEmbedded,
     llvm::Optional<PlatformKind> *unavailablePlatformKind) {
   if (D->isSPI() ||
       D->isAvailableAsSPI())
@@ -198,12 +199,14 @@ static void computeExportContextBits(
 
   if (auto *A = D->getAttrs().getUnavailable(Ctx)) {
     *unavailablePlatformKind = A->Platform;
+    if (A->getPlatformAgnosticAvailability() == PlatformAgnosticAvailabilityKind::NoEmbedded)
+      *unavailableInEmbedded = true;
   }
 
   if (auto *PBD = dyn_cast<PatternBindingDecl>(D)) {
     for (unsigned i = 0, e = PBD->getNumPatternEntries(); i < e; ++i) {
       if (auto *VD = PBD->getAnchoringVarDecl(i))
-        computeExportContextBits(Ctx, VD, spi, implicit, deprecated,
+        computeExportContextBits(Ctx, VD, spi, implicit, deprecated, unavailableInEmbedded,
                                  unavailablePlatformKind);
     }
   }
@@ -221,20 +224,21 @@ ExportContext ExportContext::forDeclSignature(Decl *D) {
   bool spi = Ctx.LangOpts.LibraryLevel == LibraryLevel::SPI;
   bool implicit = false;
   bool deprecated = false;
+  bool unavailableInEmbedded = false;
   llvm::Optional<PlatformKind> unavailablePlatformKind;
-  computeExportContextBits(Ctx, D, &spi, &implicit, &deprecated,
+  computeExportContextBits(Ctx, D, &spi, &implicit, &deprecated, &unavailableInEmbedded,
                            &unavailablePlatformKind);
   forEachOuterDecl(D->getDeclContext(),
                    [&](Decl *D) {
                      computeExportContextBits(Ctx, D,
-                                              &spi, &implicit, &deprecated,
+                                              &spi, &implicit, &deprecated, &unavailableInEmbedded,
                                               &unavailablePlatformKind);
                    });
 
   bool exported = ::isExported(D);
 
   return ExportContext(DC, runningOSVersion, fragileKind,
-                       spi, exported, implicit, deprecated,
+                       spi, exported, implicit, deprecated, unavailableInEmbedded,
                        unavailablePlatformKind);
 }
 
@@ -250,18 +254,19 @@ ExportContext ExportContext::forFunctionBody(DeclContext *DC, SourceLoc loc) {
   bool spi = Ctx.LangOpts.LibraryLevel == LibraryLevel::SPI;
   bool implicit = false;
   bool deprecated = false;
+  bool unavailableInEmbedded = false;
   llvm::Optional<PlatformKind> unavailablePlatformKind;
   forEachOuterDecl(DC,
                    [&](Decl *D) {
                      computeExportContextBits(Ctx, D,
-                                              &spi, &implicit, &deprecated,
+                                              &spi, &implicit, &deprecated, &unavailableInEmbedded,
                                               &unavailablePlatformKind);
                    });
 
   bool exported = false;
 
   return ExportContext(DC, runningOSVersion, fragileKind,
-                       spi, exported, implicit, deprecated,
+                       spi, exported, implicit, deprecated, unavailableInEmbedded,
                        unavailablePlatformKind);
 }
 
@@ -337,6 +342,10 @@ static bool computeContainedByDeploymentTarget(TypeRefinementContext *TRC,
 /// unconditional unavailable declaration for the same platform.
 static bool isInsideCompatibleUnavailableDeclaration(
     const Decl *D, const ExportContext &where, const AvailableAttr *attr) {
+  if (attr->getPlatformAgnosticAvailability() == PlatformAgnosticAvailabilityKind::NoEmbedded)
+    if (where.isUnavailableInEmbedded())
+      return true;
+
   auto referencedPlatform = where.getUnavailablePlatformKind();
   if (!referencedPlatform)
     return false;
@@ -2794,6 +2803,10 @@ bool swift::diagnoseExplicitUnavailability(SourceLoc loc,
     // This API is explicitly unavailable in Swift.
     platform = "Swift";
     break;
+
+  case PlatformAgnosticAvailabilityKind::NoEmbedded:
+    platform = "embedded Swift";
+    break;
   }
 
   EncodedDiagnosticMessage EncodedMessage(attr->Message);
@@ -2988,6 +3001,10 @@ bool swift::diagnoseExplicitUnavailability(
   case PlatformAgnosticAvailabilityKind::UnavailableInSwift:
     // This API is explicitly unavailable in Swift.
     platform = "Swift";
+    break;
+
+  case PlatformAgnosticAvailabilityKind::NoEmbedded:
+    platform = "embedded Swift";
     break;
   }
 

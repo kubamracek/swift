@@ -111,10 +111,11 @@ class ExportContext {
   unsigned Unavailable : 1;
   unsigned Platform : 8;
   unsigned Reason : 3;
+  unsigned UnavailableInEmbedded : 1;
 
   ExportContext(DeclContext *DC, AvailabilityContext runningOSVersion,
                 FragileFunctionKind kind, bool spi, bool exported,
-                bool implicit, bool deprecated,
+                bool implicit, bool deprecated, bool unavailableInEmbedded,
                 llvm::Optional<PlatformKind> unavailablePlatformKind);
 
 public:
@@ -177,6 +178,8 @@ public:
   bool isDeprecated() const { return Deprecated; }
 
   llvm::Optional<PlatformKind> getUnavailablePlatformKind() const;
+
+  bool isUnavailableInEmbedded() const { return UnavailableInEmbedded; }
 
   /// If true, the context can only reference exported declarations, either
   /// because it is the signature context of an exported declaration, or

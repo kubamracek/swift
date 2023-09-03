@@ -46,5 +46,8 @@ PLATFORM_CONDITION(TargetEnvironment, "targetEnvironment")
 /// Pointer authentication enabled
 PLATFORM_CONDITION_(PtrAuth, "ptrauth")
 
+/// Compilation mode (_Normal or _Embedded)
+PLATFORM_CONDITION_(Mode, "mode")
+
 #undef PLATFORM_CONDITION
 #undef PLATFORM_CONDITION_
