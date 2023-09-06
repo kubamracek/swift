@@ -57,6 +57,7 @@ internal final class __EmptyArrayStorage
 
   /// A type that every element in the array is.
   @inlinable
+  @available(_embedded, unavailable)
   override internal var staticElementType: Any.Type {
     return Void.self
   }
@@ -240,6 +241,7 @@ internal final class _ContiguousArrayStorage<
 
   /// A type that every element in the array is.
   @inlinable
+  @available(_embedded, unavailable)
   internal override var staticElementType: Any.Type {
     return Element.self
   }
@@ -300,7 +302,13 @@ internal struct _ContiguousArrayBuffer<Element>: _ArrayBufferProtocol {
          realMinimumCapacity._builtinWordValue, Element.self)
 
       let storageAddr = UnsafeMutableRawPointer(Builtin.bridgeToRawPointer(_storage))
-      if let allocSize = _mallocSize(ofAllocation: storageAddr) {
+      let allocSize: Int?
+      #if _mode(_Normal)
+      allocSize = _mallocSize(ofAllocation: storageAddr)
+      #else
+      allocSize = nil
+      #endif
+      if let allocSize {
         let endAddr = storageAddr + allocSize
         let realCapacity = endAddr.assumingMemoryBound(to: Element.self) - firstElementAddress
         _initStorageHeader(
@@ -683,7 +691,7 @@ internal struct _ContiguousArrayBuffer<Element>: _ArrayBufferProtocol {
   internal subscript(bounds: Range<Int>) -> _SliceBuffer<Element> {
     get {
       return _SliceBuffer(
-        owner: _storage,
+        owner: Builtin.castToNativeObject(_storage),
         subscriptBaseAddress: firstElementAddress,
         indices: bounds,
         hasNativeBuffer: true)
@@ -833,14 +841,14 @@ internal struct _ContiguousArrayBuffer<Element>: _ArrayBufferProtocol {
 
   /// An object that keeps the elements stored in this buffer alive.
   @inlinable
-  internal var owner: AnyObject {
-    return _storage
+  internal var owner: Builtin.NativeObject {
+    return Builtin.castToNativeObject(_storage)
   }
 
   /// An object that keeps the elements stored in this buffer alive.
   @inlinable
-  internal var nativeOwner: AnyObject {
-    return _storage
+  internal var nativeOwner: Builtin.NativeObject {
+    return Builtin.castToNativeObject(_storage)
   }
 
   /// A value that identifies the storage used by the buffer.
@@ -865,6 +873,7 @@ internal struct _ContiguousArrayBuffer<Element>: _ArrayBufferProtocol {
   ///
   /// - Complexity: O(*n*)
   @inlinable
+  @available(_embedded, unavailable)
   internal func storesOnlyElementsOfType<U>(
     _: U.Type
   ) -> Bool {

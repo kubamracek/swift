@@ -146,6 +146,7 @@ public struct AnyHashable {
   ///
   /// - Parameter base: A hashable value to wrap.
   @_specialize(where H == String)
+  @available(_embedded, unavailable)
   public init<H: Hashable>(_ base: H) {
     if H.self == String.self {
       self.init(_box: _ConcreteHashableBox(base))
@@ -248,12 +249,14 @@ extension AnyHashable: Hashable {
   }
 }
 
+@available(_embedded, unavailable)
 extension AnyHashable: CustomStringConvertible {
   public var description: String {
     return String(describing: base)
   }
 }
 
+@available(_embedded, unavailable)
 extension AnyHashable: CustomDebugStringConvertible {
   public var debugDescription: String {
     return "AnyHashable(" + String(reflecting: base) + ")"
@@ -303,6 +306,7 @@ internal func _makeAnyHashableUpcastingToHashableBaseType<H: Hashable>(
 )
 
 @inlinable
+@available(_embedded, unavailable)
 public // COMPILER_INTRINSIC
 func _convertToAnyHashable<H: Hashable>(_ value: H) -> AnyHashable {
   return AnyHashable(value)

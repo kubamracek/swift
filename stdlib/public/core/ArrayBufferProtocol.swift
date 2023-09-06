@@ -98,7 +98,7 @@ where Indices == Range<Int> {
   var capacity: Int { get }
 
   /// An object that keeps the elements stored in this buffer alive.
-  var owner: AnyObject { get }
+  var owner: Builtin.NativeObject { get }
 
   /// A pointer to the first element.
   ///

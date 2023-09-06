@@ -923,6 +923,7 @@ extension Collection {
   ///   sequence may change when your program is compiled using a different
   ///   version of Swift.
   @inlinable
+  @available(_embedded, unavailable)
   public func randomElement<T: RandomNumberGenerator>(
     using generator: inout T
   ) -> Element? {
@@ -951,6 +952,7 @@ extension Collection {
   ///   `RandomAccessCollection`; otherwise, O(*n*), where *n* is the length
   ///   of the collection.
   @inlinable
+  @available(_embedded, unavailable)
   public func randomElement() -> Element? {
     var g = SystemRandomNumberGenerator()
     return randomElement(using: &g)

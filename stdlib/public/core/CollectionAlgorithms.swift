@@ -455,6 +455,7 @@ extension Collection {
 // shuffled()/shuffle()
 //===----------------------------------------------------------------------===//
 
+@available(_embedded, unavailable)
 extension Sequence {
   /// Returns the elements of the sequence, shuffled using the given generator
   /// as a source for randomness.
@@ -509,6 +510,7 @@ extension Sequence {
   }
 }
 
+@available(_embedded, unavailable)
 extension MutableCollection where Self: RandomAccessCollection {
   /// Shuffles the collection in place, using the given generator as a source
   /// for randomness.

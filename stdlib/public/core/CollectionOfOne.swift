@@ -158,6 +158,7 @@ extension CollectionOfOne: RandomAccessCollection, MutableCollection {
   }
 }
 
+@available(_embedded, unavailable)
 extension CollectionOfOne: CustomDebugStringConvertible {
   /// A textual representation of the collection, suitable for debugging.
   public var debugDescription: String {

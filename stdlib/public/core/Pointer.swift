@@ -16,11 +16,17 @@ public typealias _CustomReflectableOrNone = CustomReflectable
 public typealias _CustomReflectableOrNone = Any
 #endif
 
+#if _mode(_Normal)
+public typealias _CustomDebugStringConvertibleOrNone = CustomDebugStringConvertible
+#else
+public typealias _CustomDebugStringConvertibleOrNone = Any
+#endif
+
 /// A stdlib-internal protocol modeled by the intrinsic pointer types,
 /// UnsafeMutablePointer, UnsafePointer, UnsafeRawPointer,
 /// UnsafeMutableRawPointer, and AutoreleasingUnsafeMutablePointer.
 public protocol _Pointer
-: Hashable, Strideable, CustomDebugStringConvertible, _CustomReflectableOrNone {
+: Hashable, Strideable, _CustomDebugStringConvertibleOrNone, _CustomReflectableOrNone {
   /// A type that represents the distance between two pointers.
   typealias Distance = Int
   
@@ -303,6 +309,7 @@ extension _Pointer /*: Hashable */ {
   }
 }
 
+@available(_embedded, unavailable)
 extension _Pointer /*: CustomDebugStringConvertible */ {
   /// A textual representation of the pointer, suitable for debugging.
   public var debugDescription: String {
@@ -413,11 +420,12 @@ func _convertInOutToPointerArgument<
 /// This always produces a non-null pointer, even if the array doesn't have any
 /// storage.
 @_transparent
+@available(_embedded, unavailable)
 public // COMPILER_INTRINSIC
 func _convertConstArrayToPointerArgument<
   FromElement,
   ToPointer: _Pointer
->(_ arr: [FromElement]) -> (AnyObject?, ToPointer) {
+>(_ arr: [FromElement]) -> (Builtin.NativeObject?, ToPointer) {
   let (owner, opaquePointer) = arr._cPointerArgs()
 
   let validPointer: ToPointer
@@ -435,11 +443,12 @@ func _convertConstArrayToPointerArgument<
 ///
 /// This always produces a non-null pointer, even if the array's length is 0.
 @_transparent
+@available(_embedded, unavailable)
 public // COMPILER_INTRINSIC
 func _convertMutableArrayToPointerArgument<
   FromElement,
   ToPointer: _Pointer
->(_ a: inout [FromElement]) -> (AnyObject?, ToPointer) {
+>(_ a: inout [FromElement]) -> (Builtin.NativeObject?, ToPointer) {
   // TODO: Putting a canary at the end of the array in checked builds might
   // be a good idea
 
@@ -452,10 +461,11 @@ func _convertMutableArrayToPointerArgument<
 
 /// Derive a UTF-8 pointer argument from a value string parameter.
 @_transparent
+@available(_embedded, unavailable)
 public // COMPILER_INTRINSIC
 func _convertConstStringToUTF8PointerArgument<
   ToPointer: _Pointer
->(_ str: String) -> (AnyObject?, ToPointer) {
+>(_ str: String) -> (Builtin.NativeObject?, ToPointer) {
   let utf8 = Array(str.utf8CString)
   return _convertConstArrayToPointerArgument(utf8)
 }

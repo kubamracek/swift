@@ -479,7 +479,7 @@ extension Array: _ArrayProtocol {
   /// An object that guarantees the lifetime of this array's elements.
   @inlinable
   public // @testable
-  var _owner: AnyObject? {
+  var _owner: Builtin.NativeObject? {
     @inlinable // FIXME(inline-always)
     @inline(__always)
     get {
@@ -1249,6 +1249,7 @@ extension Array: RangeReplaceableCollection {
 
     if _slowPath(writtenUpTo == buf.endIndex) {
 
+#if _mode(_Normal)
       // A shortcut for appending an Array: If newElements is an Array then it's
       // guaranteed that buf.initialize(from: newElements) already appended all
       // elements. It reduces code size, because the following code
@@ -1258,6 +1259,7 @@ extension Array: RangeReplaceableCollection {
         _internalInvariant(remainder.next() == nil)
         return
       }
+#endif
 
       // there may be elements that didn't fit in the existing buffer,
       // append them in slow sequence-only mode
@@ -1463,6 +1465,7 @@ extension Array: CustomReflectable {
 }
 #endif
 
+@available(_embedded, unavailable)
 extension Array: CustomStringConvertible, CustomDebugStringConvertible {
   /// A textual representation of the array and its elements.
   public var description: String {
@@ -1479,7 +1482,8 @@ extension Array: CustomStringConvertible, CustomDebugStringConvertible {
 
 extension Array {
   @usableFromInline @_transparent
-  internal func _cPointerArgs() -> (AnyObject?, UnsafeRawPointer?) {
+  @available(_embedded, unavailable)
+  internal func _cPointerArgs() -> (Builtin.NativeObject?, UnsafeRawPointer?) {
     let p = _baseAddressIfContiguous
     if _fastPath(p != nil || isEmpty) {
       return (_owner, UnsafeRawPointer(p))

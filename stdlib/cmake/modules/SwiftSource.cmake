@@ -51,7 +51,7 @@ function(handle_swift_sources
   cmake_parse_arguments(SWIFTSOURCES
       "IS_MAIN;IS_STDLIB;IS_STDLIB_CORE;IS_SDK_OVERLAY;EMBED_BITCODE;STATIC;NO_LINK_NAME;IS_FRAGILE"
       "SDK;ARCHITECTURE;INSTALL_IN_COMPONENT;MACCATALYST_BUILD_FLAVOR;BOOTSTRAPPING"
-      "DEPENDS;COMPILE_FLAGS;MODULE_NAME;ENABLE_LTO"
+      "DEPENDS;COMPILE_FLAGS;MODULE_NAME;MODULE_DIR;ENABLE_LTO"
       ${ARGN})
   translate_flag(${SWIFTSOURCES_IS_MAIN} "IS_MAIN" IS_MAIN_arg)
   translate_flag(${SWIFTSOURCES_IS_STDLIB} "IS_STDLIB" IS_STDLIB_arg)
@@ -146,6 +146,7 @@ function(handle_swift_sources
         SDK ${SWIFTSOURCES_SDK}
         ARCHITECTURE ${SWIFTSOURCES_ARCHITECTURE}
         MODULE_NAME ${SWIFTSOURCES_MODULE_NAME}
+        MODULE_DIR ${SWIFTSOURCES_MODULE_DIR}
         ${IS_MAIN_arg}
         ${IS_STDLIB_arg}
         ${IS_STDLIB_CORE_arg}
@@ -937,6 +938,7 @@ function(_compile_swift_files
     set(copy_legacy_layouts_dep)
   endif()
 
+  if(0)
   add_custom_command_target(
       dependency_target
       COMMAND
@@ -956,6 +958,7 @@ function(_compile_swift_files
         ${copy_legacy_layouts_dep}
       COMMENT "Compiling ${first_output}")
   set("${dependency_target_out_var_name}" "${dependency_target}" PARENT_SCOPE)
+  endif()
 
   # This is the target to generate:
   #
@@ -1010,8 +1013,8 @@ function(_compile_swift_files
           ${specific_module_dir_static}
         COMMAND
           "${CMAKE_COMMAND}" "-E" "copy" ${module_file} ${module_file_static}
-        COMMAND
-          "${CMAKE_COMMAND}" "-E" "copy" ${module_doc_file} ${module_doc_file_static}
+        #COMMAND
+        #  "${CMAKE_COMMAND}" "-E" "copy" ${module_doc_file} ${module_doc_file_static}
         ${command_copy_interface_file}
         OUTPUT ${module_outputs_static}
         DEPENDS

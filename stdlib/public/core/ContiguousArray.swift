@@ -150,7 +150,7 @@ extension ContiguousArray: _ArrayProtocol {
   /// An object that guarantees the lifetime of this array's elements.
   @inlinable
   public // @testable
-  var _owner: AnyObject? {
+  var _owner: Builtin.NativeObject? {
     return _buffer.owner
   }
 
@@ -1037,6 +1037,7 @@ extension ContiguousArray: CustomReflectable {
 }
 #endif
 
+@available(_embedded, unavailable)
 extension ContiguousArray: CustomStringConvertible, CustomDebugStringConvertible {
   /// A textual representation of the array and its elements.
   public var description: String {
@@ -1052,7 +1053,8 @@ extension ContiguousArray: CustomStringConvertible, CustomDebugStringConvertible
 
 extension ContiguousArray {
   @usableFromInline @_transparent
-  internal func _cPointerArgs() -> (AnyObject?, UnsafeRawPointer?) {
+  @available(_embedded, unavailable)
+  internal func _cPointerArgs() -> (Builtin.NativeObject?, UnsafeRawPointer?) {
     let p = _baseAddressIfContiguous
     if _fastPath(p != nil || isEmpty) {
       return (_owner, UnsafeRawPointer(p))

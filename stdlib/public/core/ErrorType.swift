@@ -111,6 +111,7 @@ import SwiftShims
 ///     }
 ///     // Prints "Parsing error: mismatchedTag [19:5]"
 public protocol Error: Sendable {
+#if !_mode(_Embedded)
   var _domain: String { get }
   var _code: Int { get }
 
@@ -118,6 +119,7 @@ public protocol Error: Sendable {
   // because the standard library cannot depend on Foundation. However, the
   // underscore implies that we control all implementations of this requirement.
   var _userInfo: AnyObject? { get }
+#endif
 
 #if _runtime(_ObjC)
   func _getEmbeddedNSError() -> AnyObject?
@@ -205,6 +207,7 @@ public func _errorInMain(_ error: Error) {
 @_silgen_name("_swift_stdlib_getDefaultErrorCode")
 public func _getDefaultErrorCode<T: Error>(_ error: T) -> Int
 
+#if !_mode(_Embedded)
 extension Error {
   public var _code: Int {
     return _getDefaultErrorCode(self)
@@ -222,6 +225,7 @@ extension Error {
 #endif
   }
 }
+#endif
 
 extension Error where Self: RawRepresentable, Self.RawValue: FixedWidthInteger {
   // The error code of Error with integral raw values is the raw value.

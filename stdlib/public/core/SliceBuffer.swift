@@ -17,13 +17,16 @@ internal struct _SliceBuffer<Element>
   : _ArrayBufferProtocol,
     RandomAccessCollection
 {
+  @usableFromInline
+  typealias AnyObject = Builtin.NativeObject
+
   internal typealias NativeStorage = _ContiguousArrayStorage<Element>
   @usableFromInline
   internal typealias NativeBuffer = _ContiguousArrayBuffer<Element>
 
   /// An object that keeps the elements stored in this buffer alive.
   @usableFromInline
-  internal var owner: AnyObject
+  internal var owner: Builtin.NativeObject
 
   @usableFromInline
   internal let subscriptBaseAddress: UnsafeMutablePointer<Element>
@@ -40,7 +43,7 @@ internal struct _SliceBuffer<Element>
 
   @inlinable
   internal init(
-    owner: AnyObject,
+    owner: Builtin.NativeObject,
     subscriptBaseAddress: UnsafeMutablePointer<Element>,
     startIndex: Int,
     endIndexAndFlags: UInt
@@ -53,7 +56,7 @@ internal struct _SliceBuffer<Element>
 
   @inlinable
   internal init(
-    owner: AnyObject, subscriptBaseAddress: UnsafeMutablePointer<Element>,
+    owner: Builtin.NativeObject, subscriptBaseAddress: UnsafeMutablePointer<Element>,
     indices: Range<Int>, hasNativeBuffer: Bool
   ) {
     self.owner = owner
@@ -67,7 +70,7 @@ internal struct _SliceBuffer<Element>
   @inlinable
   internal init() {
     let empty = _ContiguousArrayBuffer<Element>()
-    self.owner = empty.owner
+    self.owner = Builtin.castToNativeObject(_emptyArrayStorage)
     self.subscriptBaseAddress = empty.firstElementAddress
     self.startIndex = empty.startIndex
     self.endIndexAndFlags = 1
@@ -87,7 +90,12 @@ internal struct _SliceBuffer<Element>
   @inlinable // FIXME(sil-serialize-all)
   internal func _invariantCheck() {
     let isNative = _hasNativeBuffer
-    let isNativeStorage: Bool = owner is __ContiguousArrayStorageBase
+    let isNativeStorage: Bool
+    #if _mode(_Normal)
+    isNativeStorage = owner is __ContiguousArrayStorageBase
+    #else
+    isNativeStorage = true
+    #endif
     _internalInvariant(isNativeStorage == isNative)
     if isNative {
       _internalInvariant(count <= nativeBuffer.count)
@@ -102,12 +110,17 @@ internal struct _SliceBuffer<Element>
   @inlinable
   internal var nativeBuffer: NativeBuffer {
     _internalInvariant(_hasNativeBuffer)
+    #if _mode(_Normal)
     return NativeBuffer(
       owner as? __ContiguousArrayStorageBase ?? _emptyArrayStorage)
+    #else
+    return NativeBuffer(unsafeBitCast(_nativeObject(toNative: owner),
+      to: __ContiguousArrayStorageBase.self))
+    #endif
   }
 
   @inlinable
-  internal var nativeOwner: AnyObject {
+  internal var nativeOwner: Builtin.NativeObject {
     _internalInvariant(_hasNativeBuffer, "Expect a native array")
     return owner
   }

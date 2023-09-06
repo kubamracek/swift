@@ -289,6 +289,7 @@ public enum Optional<Wrapped>: ExpressibleByNilLiteral {
   }
 }
 
+@available(_embedded, unavailable)
 extension Optional: CustomDebugStringConvertible {
   /// A textual representation of this instance, suitable for debugging.
   public var debugDescription: String {

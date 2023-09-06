@@ -10,6 +10,84 @@
 #
 #===----------------------------------------------------------------------===#
 
+set(SWIFTLIB_EMBEDDED_SOURCES
+  Algorithm.swift
+  AnyHashable.swift
+  Array.swift
+  ArrayBody.swift
+  ArrayBuffer.swift
+  ArrayBufferProtocol.swift
+  ArrayShared.swift
+  ArraySlice.swift
+  ArrayType.swift
+  Assert.swift
+  AssertCommon.swift
+  BidirectionalCollection.swift
+  Bool.swift
+  Builtin.swift
+  CTypes.swift
+  ClosedRange.swift
+  Collection.swift
+  CollectionAlgorithms.swift
+  CollectionOfOne.swift
+  Comparable.swift
+  CompilerProtocols.swift
+  ContiguousArray.swift
+  ContiguousArrayBuffer.swift
+  Duration.swift
+  DurationProtocol.swift
+  EmbeddedStubs.swift
+  EmptyCollection.swift
+  Equatable.swift
+  ErrorType.swift
+  ExistentialCollection.swift
+  FloatingPoint.swift
+  Hashable.swift
+  Hasher.swift
+  Indices.swift
+  Instant.swift
+  Integers.swift
+  LifetimeManager.swift
+  ManagedBuffer.swift
+  MemoryLayout.swift
+  Misc.swift
+  MutableCollection.swift
+  ObjectIdentifier.swift
+  Optional.swift
+  Pointer.swift
+  Policy.swift
+  RandomAccessCollection.swift
+  Range.swift
+  RangeReplaceableCollection.swift
+  Repeat.swift
+  Result.swift
+  Reverse.swift
+  Sendable.swift
+  Sequence.swift
+  SequenceAlgorithms.swift
+  SipHash.swift
+  Slice.swift
+  SliceBuffer.swift
+  Sort.swift
+  StaticString.swift
+  Stride.swift
+  SwiftNativeNSArray.swift
+  TemporaryAllocation.swift
+  UnsafePointer.swift
+  UnsafeRawPointer.swift
+  WriteBackMutableSlice.swift
+  Zip.swift
+  )
+
+set(SWIFTLIB_EMBEDDED_GYB_SOURCES
+  FloatingPointTypes.swift.gyb
+  Int128.swift.gyb
+  IntegerTypes.swift.gyb
+  Tuple.swift.gyb
+  UnsafeBufferPointer.swift.gyb
+  UnsafeRawBufferPointer.swift.gyb
+  )
+
 # The list of sources without which it's impossible to build a core
 # standard library.  Try to add new standard library sources to
 # SWIFTLIB_SOURCES, below, rather than SWIFTLIB_ESSENTIAL, if
@@ -381,3 +459,39 @@ add_swift_target_library(swiftCore
                   MACCATALYST_BUILD_FLAVOR
                     zippered
                  )
+
+# Embedded standard library
+set(EMBEDDED_ARCHS armv7 arm64)
+foreach(arch ${EMBEDDED_ARCHS})
+  message(${arch})
+  set(SWIFT_ENABLE_REFLECTION OFF)
+  set(SWIFT_STDLIB_SUPPORT_BACK_DEPLOYMENT OFF)
+  set(SWIFT_STDLIB_STABLE_ABI OFF)
+  set(SWIFT_STDLIB_ENABLE_OBJC_INTEROP OFF)
+  set(SWIFT_SDK_embedded_ARCH_${arch}_MODULE "${arch}-apple-none-macho")
+
+  add_swift_target_library_single(
+    embedded-stdlib-${arch}
+    swiftCore
+    ONLY_SWIFTMODULE
+    IS_STDLIB IS_STDLIB_CORE
+
+    ${SWIFTLIB_EMBEDDED_SOURCES}
+    GYB_SOURCES ${SWIFTLIB_EMBEDDED_GYB_SOURCES}
+
+    SWIFT_COMPILE_FLAGS
+                -target "${arch}-apple-none-macho" -Xcc -D__MACH__
+                -enable-experimental-feature Embedded
+                -Xfrontend -experimental-skip-non-inlinable-function-bodies
+
+    MODULE_DIR "${CMAKE_BINARY_DIR}/lib/swift/embedded"
+    SDK "embedded"
+    ARCHITECTURE "${arch}"
+    INSTALL_IN_COMPONENT "never_install"
+    )
+endforeach()
+
+add_custom_target(embedded-stdlib)
+foreach(arch ${EMBEDDED_ARCHS})
+  add_dependencies(embedded-stdlib embedded-stdlib-${arch})
+endforeach()

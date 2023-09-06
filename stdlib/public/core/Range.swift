@@ -375,14 +375,20 @@ extension Range {
   }
 }
 
+@available(_embedded, unavailable)
 extension Range: CustomStringConvertible {
   /// A textual representation of the range.
   @inlinable // trivial-implementation
   public var description: String {
+    #if _mode(_Embedded)
+    fatalError()
+    #else
     return "\(lowerBound)..<\(upperBound)"
+    #endif
   }
 }
 
+@available(_embedded, unavailable)
 extension Range: CustomDebugStringConvertible {
   /// A textual representation of the range, suitable for debugging.
   public var debugDescription: String {
@@ -438,6 +444,7 @@ extension Range: Hashable where Bound: Hashable {
   }
 }
 
+@available(_embedded, unavailable)
 extension Range: Decodable where Bound: Decodable {
   public init(from decoder: Decoder) throws {
     var container = try decoder.unkeyedContainer()
@@ -453,6 +460,7 @@ extension Range: Decodable where Bound: Decodable {
   }
 }
 
+@available(_embedded, unavailable)
 extension Range: Encodable where Bound: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.unkeyedContainer()
@@ -503,6 +511,7 @@ extension PartialRangeUpTo: RangeExpression {
   }
 }
 
+@available(_embedded, unavailable)
 extension PartialRangeUpTo: Decodable where Bound: Decodable {
   public init(from decoder: Decoder) throws {
     var container = try decoder.unkeyedContainer()
@@ -510,6 +519,7 @@ extension PartialRangeUpTo: Decodable where Bound: Decodable {
   }
 }
 
+@available(_embedded, unavailable)
 extension PartialRangeUpTo: Encodable where Bound: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.unkeyedContainer()
@@ -558,6 +568,7 @@ extension PartialRangeThrough: RangeExpression {
   }
 }
 
+@available(_embedded, unavailable)
 extension PartialRangeThrough: Decodable where Bound: Decodable {
   public init(from decoder: Decoder) throws {
     var container = try decoder.unkeyedContainer()
@@ -565,6 +576,7 @@ extension PartialRangeThrough: Decodable where Bound: Decodable {
   }
 }
 
+@available(_embedded, unavailable)
 extension PartialRangeThrough: Encodable where Bound: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.unkeyedContainer()
@@ -708,6 +720,7 @@ extension PartialRangeFrom: Sequence
   }
 }
 
+@available(_embedded, unavailable)
 extension PartialRangeFrom: Decodable where Bound: Decodable {
   public init(from decoder: Decoder) throws {
     var container = try decoder.unkeyedContainer()
@@ -715,6 +728,7 @@ extension PartialRangeFrom: Decodable where Bound: Decodable {
   }
 }
 
+@available(_embedded, unavailable)
 extension PartialRangeFrom: Encodable where Bound: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.unkeyedContainer()
@@ -1029,6 +1043,7 @@ extension PartialRangeThrough: Sendable where Bound: Sendable { }
 extension PartialRangeFrom: Sendable where Bound: Sendable { }
 extension PartialRangeFrom.Iterator: Sendable where Bound: Sendable { }
 
+#if _mode(_Normal)
 extension Range where Bound == String.Index {
   @_alwaysEmitIntoClient // Swift 5.7
   internal var _encodedOffsetRange: Range<Int> {
@@ -1039,3 +1054,4 @@ extension Range where Bound == String.Index {
       _uncheckedBounds: (lowerBound._encodedOffset, upperBound._encodedOffset))
   }
 }
+#endif

@@ -89,11 +89,13 @@ internal func _fatalErrorFlags() -> UInt32 {
 @usableFromInline
 @inline(never)
 @_semantics("programtermination_point")
+@_alwaysEmitIntoClient
 internal func _assertionFailure(
   _ prefix: StaticString, _ message: StaticString,
   file: StaticString, line: UInt,
   flags: UInt32
 ) -> Never {
+#if _mode(_Normal)
   prefix.withUTF8Buffer {
     (prefix) -> Void in
     message.withUTF8Buffer {
@@ -109,6 +111,7 @@ internal func _assertionFailure(
       }
     }
   }
+#endif
   Builtin.int_trap()
 }
 
@@ -120,6 +123,7 @@ internal func _assertionFailure(
 @usableFromInline
 @inline(never)
 @_semantics("programtermination_point")
+@available(_embedded, unavailable)
 internal func _assertionFailure(
   _ prefix: StaticString, _ message: String,
   file: StaticString, line: UInt,
@@ -152,6 +156,7 @@ internal func _assertionFailure(
 @usableFromInline
 @inline(never)
 @_semantics("programtermination_point")
+@available(_embedded, unavailable)
 internal func _assertionFailure(
   _ prefix: StaticString, _ message: String,
   flags: UInt32
@@ -168,6 +173,16 @@ internal func _assertionFailure(
     }
   }
 
+  Builtin.int_trap()
+}
+
+@usableFromInline
+@inline(never)
+@_semantics("programtermination_point")
+internal func _assertionFailure(
+  _ prefix: StaticString, _ message: StaticString,
+  flags: UInt32
+) -> Never {
   Builtin.int_trap()
 }
 
@@ -202,6 +217,7 @@ func _unimplementedInitializer(className: StaticString,
   // redundant parameter values (#file etc.) are eliminated, and don't leak
   // information about the user's source.
 
+#if _mode(_Normal)
   if _isDebugAssertConfiguration() {
     className.withUTF8Buffer {
       (className) in
@@ -230,10 +246,12 @@ func _unimplementedInitializer(className: StaticString,
       }
     }
   }
+#endif
 
   Builtin.int_trap()
 }
 
+@available(_embedded, unavailable)
 public // COMPILER_INTRINSIC
 func _undefined<T>(
   _ message: @autoclosure () -> String = String(),

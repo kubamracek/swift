@@ -762,6 +762,7 @@ public protocol ExpressibleByDictionaryLiteral {
 /// `StringInterpolationProtocol` and have a matching `StringLiteralType`.
 ///
 /// For more information, see the `StringInterpolationProtocol` documentation.
+@available(_embedded, unavailable)
 public protocol ExpressibleByStringInterpolation
   : ExpressibleByStringLiteral {
   
@@ -787,6 +788,7 @@ public protocol ExpressibleByStringInterpolation
   init(stringInterpolation: StringInterpolation)
 }
 
+@available(_embedded, unavailable)
 extension ExpressibleByStringInterpolation
   where StringInterpolation == DefaultStringInterpolation {
   
@@ -940,6 +942,7 @@ public protocol _ExpressibleByColorLiteral {
 
 /// A type that can be initialized using an image literal (e.g.
 /// `#imageLiteral(resourceName: "hi.png")`).
+@available(_embedded, unavailable)
 public protocol _ExpressibleByImageLiteral {
   /// Creates an instance initialized with the given resource name.
   ///
@@ -950,6 +953,7 @@ public protocol _ExpressibleByImageLiteral {
 
 /// A type that can be initialized using a file reference literal (e.g.
 /// `#fileLiteral(resourceName: "resource.txt")`).
+@available(_embedded, unavailable)
 public protocol _ExpressibleByFileReferenceLiteral {
   /// Creates an instance initialized with the given resource name.
   ///

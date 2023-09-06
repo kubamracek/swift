@@ -68,6 +68,7 @@ extension Never: Error {}
 extension Never: Equatable, Comparable, Hashable {}
 
 @available(SwiftStdlib 5.5, *)
+@available(_embedded, unavailable)
 extension Never: Identifiable {
   @available(SwiftStdlib 5.5, *)
   public var id: Never {
@@ -76,12 +77,14 @@ extension Never: Identifiable {
 }
 
 @available(SwiftStdlib 5.9, *)
+@available(_embedded, unavailable)
 extension Never: Encodable {
   @available(SwiftStdlib 5.9, *)
   public func encode(to encoder: any Encoder) throws {}
 }
 
 @available(SwiftStdlib 5.9, *)
+@available(_embedded, unavailable)
 extension Never: Decodable {
   @available(SwiftStdlib 5.9, *)
   public init(from decoder: any Decoder) throws {
@@ -150,11 +153,14 @@ public typealias FloatLiteralType = Double
 public typealias BooleanLiteralType = Bool
 
 /// The default type for an otherwise-unconstrained unicode scalar literal.
+@available(_embedded, unavailable)
 public typealias UnicodeScalarType = String
 /// The default type for an otherwise-unconstrained Unicode extended
 /// grapheme cluster literal.
+@available(_embedded, unavailable)
 public typealias ExtendedGraphemeClusterType = String
 /// The default type for an otherwise-unconstrained string literal.
+@available(_embedded, unavailable)
 public typealias StringLiteralType = String
 
 //===----------------------------------------------------------------------===//
