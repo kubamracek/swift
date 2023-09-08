@@ -126,6 +126,7 @@ func _stdlib_atomicCompareExchangeStrongPtr<T>(
 
 @_transparent
 @discardableResult
+@available(_embedded, unavailable)
 public // @testable
 func _stdlib_atomicInitializeARCRef(
   object target: UnsafeMutablePointer<AnyObject?>,
@@ -149,6 +150,7 @@ func _stdlib_atomicInitializeARCRef(
 }
 
 @_transparent
+@available(_embedded, unavailable)
 public // @testable
 func _stdlib_atomicLoadARCRef(
   object target: UnsafeMutablePointer<AnyObject?>
@@ -163,6 +165,7 @@ func _stdlib_atomicLoadARCRef(
 @_transparent
 @_alwaysEmitIntoClient
 @discardableResult
+@available(_embedded, unavailable)
 public func _stdlib_atomicAcquiringInitializeARCRef<T: AnyObject>(
   object target: UnsafeMutablePointer<T?>,
   desired: __owned T
@@ -189,6 +192,7 @@ public func _stdlib_atomicAcquiringInitializeARCRef<T: AnyObject>(
 
 @_alwaysEmitIntoClient
 @_transparent
+@available(_embedded, unavailable)
 public func _stdlib_atomicAcquiringLoadARCRef<T: AnyObject>(
   object target: UnsafeMutablePointer<T?>
 ) -> Unmanaged<T>? {
@@ -346,6 +350,7 @@ internal func _float16ToStringImpl(
 ) -> Int
 
 @available(SwiftStdlib 5.3, *)
+@available(_embedded, unavailable)
 internal func _float16ToString(
   _ value: Float16,
   debug: Bool
@@ -371,6 +376,7 @@ internal func _float32ToStringImpl(
   _ debug: Bool
 ) -> UInt64
 
+@available(_embedded, unavailable)
 internal func _float32ToString(
   _ value: Float32,
   debug: Bool
@@ -395,6 +401,7 @@ internal func _float64ToStringImpl(
   _ debug: Bool
 ) -> UInt64
 
+@available(_embedded, unavailable)
 internal func _float64ToString(
   _ value: Float64,
   debug: Bool
@@ -422,6 +429,7 @@ internal func _float80ToStringImpl(
   _ debug: Bool
 ) -> UInt64
 
+@available(_embedded, unavailable)
 internal func _float80ToString(
   _ value: Float80,
   debug: Bool
@@ -448,6 +456,7 @@ internal func _int64ToStringImpl(
   _ uppercase: Bool
 ) -> UInt64
 
+@available(_embedded, unavailable)
 internal func _int64ToString(
   _ value: Int64,
   radix: Int64 = 10,
@@ -485,6 +494,7 @@ internal func _uint64ToStringImpl(
   _ uppercase: Bool
 ) -> UInt64
 
+@available(_embedded, unavailable)
 public // @testable
 func _uint64ToString(
     _ value: UInt64,
@@ -511,6 +521,7 @@ func _uint64ToString(
 }
 
 @inlinable
+@available(_embedded, unavailable)
 internal func _rawPointerToString(_ value: Builtin.RawPointer) -> String {
   var result = _uint64ToString(
     UInt64(

@@ -62,6 +62,7 @@ set(SWIFTLIB_EMBEDDED_SOURCES
   Repeat.swift
   Result.swift
   Reverse.swift
+  Runtime.swift
   Sendable.swift
   Sequence.swift
   SequenceAlgorithms.swift
@@ -72,6 +73,7 @@ set(SWIFTLIB_EMBEDDED_SOURCES
   StaticString.swift
   Stride.swift
   SwiftNativeNSArray.swift
+  Unmanaged.swift
   TemporaryAllocation.swift
   UnsafePointer.swift
   UnsafeRawPointer.swift
