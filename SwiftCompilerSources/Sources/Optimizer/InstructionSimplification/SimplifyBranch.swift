@@ -70,8 +70,12 @@ private extension BranchInst {
       }
       parentBB.moveAllInstructions(toBeginOf: targetBB, context)
       parentBB.moveAllArguments(to: targetBB, context)
+      let builder = Builder(atEndOf: parentBB, location: self.location, context)
+      builder.createUnreachable()
     } else {
       targetBB.moveAllInstructions(toEndOf: parentBB, context)
+      let builder = Builder(atEndOf: targetBB, location: self.location, context)
+      builder.createUnreachable()
     }
   }
 }

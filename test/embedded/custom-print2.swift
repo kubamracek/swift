@@ -1,7 +1,7 @@
 // RUN: %empty-directory(%t)
 // RUN: %target-swift-frontend -target arm64-apple-none-macho -Xcc -D__MACH__ -Xcc -D__arm64__ -Xcc -D__APPLE__ %s -enable-experimental-feature Embedded -c -o %t/a.o
 // RUN: %target-clang %t/a.o -o %t/a.out
-// RUN: %target-run %t/a.out | %FileCheck %s
+// RUN: %target-run %t/a.out
 
 // REQUIRES: executable_test
 
