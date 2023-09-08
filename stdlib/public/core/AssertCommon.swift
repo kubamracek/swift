@@ -272,9 +272,13 @@ internal func _diagnoseUnexpectedEnumCaseValue<SwitchedValue, RawValue>(
   type: SwitchedValue.Type,
   rawValue: RawValue
 ) -> Never {
+#if _mode(_Normal)
   _assertionFailure("Fatal error",
                     "unexpected enum case '\(type)(rawValue: \(rawValue))'",
                     flags: _fatalErrorFlags())
+#else
+  Builtin.int_trap()
+#endif
 }
 
 /// Called when falling off the end of a switch and the value is not safe to
@@ -288,10 +292,14 @@ internal func _diagnoseUnexpectedEnumCaseValue<SwitchedValue, RawValue>(
 internal func _diagnoseUnexpectedEnumCase<SwitchedValue>(
   type: SwitchedValue.Type
 ) -> Never {
+#if _mode(_Normal)
   _assertionFailure(
     "Fatal error",
     "unexpected enum case while switching on value of type '\(type)'",
     flags: _fatalErrorFlags())
+#else
+  Builtin.int_trap()
+#endif
 }
 
 /// Called when a function marked `unavailable` with `@available` is invoked

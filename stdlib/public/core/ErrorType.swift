@@ -187,6 +187,7 @@ public func _unexpectedError(
   filenameIsASCII: Builtin.Int1,
   line: Builtin.Word
 ) {
+  #if _mode(_Normal)
   preconditionFailure(
     "'try!' expression unexpectedly raised an error: \(String(reflecting: error))",
     file: StaticString(
@@ -194,12 +195,19 @@ public func _unexpectedError(
       utf8CodeUnitCount: filenameLength,
       isASCII: filenameIsASCII),
     line: UInt(line))
+  #else
+  Builtin.int_trap()
+  #endif
 }
 
 /// Invoked by the compiler when code at top level throws an uncaught error.
 @_silgen_name("swift_errorInMain")
 public func _errorInMain(_ error: Error) {
+  #if _mode(_Normal)
   fatalError("Error raised at top level: \(String(reflecting: error))")
+  #else
+  Builtin.int_trap()
+  #endif
 }
 
 /// Runtime function to determine the default code for an Error-conforming type.

@@ -482,7 +482,6 @@ foreach(arch ${EMBEDDED_ARCHS})
     SWIFT_COMPILE_FLAGS
                 -target "${arch}-apple-none-macho" -Xcc -D__MACH__
                 -enable-experimental-feature Embedded
-                -Xfrontend -experimental-skip-non-inlinable-function-bodies
 
     MODULE_DIR "${CMAKE_BINARY_DIR}/lib/swift/embedded"
     SDK "embedded"

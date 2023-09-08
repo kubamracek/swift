@@ -13,6 +13,7 @@
 /// A value that has a custom representation in `AnyHashable`.
 ///
 /// `Self` should also conform to `Hashable`.
+@available(_embedded, unavailable)
 public protocol _HasCustomAnyHashableRepresentation {
   /// Returns a custom representation of `self` as `AnyHashable`.
   /// If returns nil, the default representation is used.
@@ -38,6 +39,7 @@ public protocol _HasCustomAnyHashableRepresentation {
 }
 
 @usableFromInline
+@available(_embedded, unavailable)
 internal protocol _AnyHashableBox {
   var _canonicalBox: _AnyHashableBox { get }
 
@@ -56,12 +58,14 @@ internal protocol _AnyHashableBox {
   func _downCastConditional<T>(into result: UnsafeMutablePointer<T>) -> Bool
 }
 
+@available(_embedded, unavailable)
 extension _AnyHashableBox {
   var _canonicalBox: _AnyHashableBox {
     return self
   }
 }
 
+@available(_embedded, unavailable)
 internal struct _ConcreteHashableBox<Base: Hashable>: _AnyHashableBox {
   internal var _baseHashable: Base
 
@@ -135,6 +139,7 @@ internal struct _ConcreteHashableBox<Base: Hashable>: _AnyHashableBox {
 /// compatible hashes, as the hash encoding that it uses may change between any
 /// two releases of the standard library.
 @frozen
+@available(_embedded, unavailable)
 public struct AnyHashable {
   internal var _box: _AnyHashableBox
 
@@ -207,6 +212,7 @@ public struct AnyHashable {
   }
 }
 
+@available(_embedded, unavailable)
 extension AnyHashable: Equatable {
   /// Returns a Boolean value indicating whether two type-erased hashable
   /// instances wrap the same value.
@@ -235,6 +241,7 @@ extension AnyHashable: Equatable {
   }
 }
 
+@available(_embedded, unavailable)
 extension AnyHashable: Hashable {
   public var hashValue: Int {
     return _box._canonicalBox._hashValue
@@ -273,10 +280,12 @@ extension AnyHashable: CustomReflectable {
 }
 #endif
 
+@available(_embedded, unavailable)
 @available(SwiftStdlib 5.5, *)
 extension AnyHashable: _HasCustomAnyHashableRepresentation {
 }
 
+@available(_embedded, unavailable)
 extension AnyHashable {
   @_alwaysEmitIntoClient
   public __consuming func _toCustomAnyHashable() -> AnyHashable? {
@@ -291,6 +300,7 @@ extension AnyHashable {
 /// conformance, if it exists.
 /// Called by AnyHashableSupport.cpp.
 @_silgen_name("_swift_makeAnyHashableUsingDefaultRepresentation")
+@available(_embedded, unavailable)
 internal func _makeAnyHashableUsingDefaultRepresentation<H: Hashable>(
   of value: H,
   storingResultInto result: UnsafeMutablePointer<AnyHashable>
@@ -300,6 +310,7 @@ internal func _makeAnyHashableUsingDefaultRepresentation<H: Hashable>(
 
 /// Provided by AnyHashable.cpp.
 @_silgen_name("_swift_makeAnyHashableUpcastingToHashableBaseType")
+@available(_embedded, unavailable)
 internal func _makeAnyHashableUpcastingToHashableBaseType<H: Hashable>(
   _ value: H,
   storingResultInto result: UnsafeMutablePointer<AnyHashable>
@@ -314,6 +325,7 @@ func _convertToAnyHashable<H: Hashable>(_ value: H) -> AnyHashable {
 
 /// Called by the casting machinery.
 @_silgen_name("_swift_convertToAnyHashableIndirect")
+@available(_embedded, unavailable)
 internal func _convertToAnyHashableIndirect<H: Hashable>(
   _ value: H,
   _ target: UnsafeMutablePointer<AnyHashable>
@@ -323,6 +335,7 @@ internal func _convertToAnyHashableIndirect<H: Hashable>(
 
 /// Called by the casting machinery.
 @_silgen_name("_swift_anyHashableDownCastConditionalIndirect")
+@available(_embedded, unavailable)
 internal func _anyHashableDownCastConditionalIndirect<T>(
   _ value: UnsafePointer<AnyHashable>,
   _ target: UnsafeMutablePointer<T>

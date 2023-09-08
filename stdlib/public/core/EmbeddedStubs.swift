@@ -15,10 +15,84 @@ import SwiftShims
 public typealias _SwiftStdlibVersion = SwiftShims._SwiftStdlibVersion
 
 @available(_embedded, unavailable)
+internal func _isExecutableLinkedOnOrAfter(
+  _ stdlibVersion: _SwiftStdlibVersion
+) -> Bool {
+  fatalError()
+}
+
+@available(_embedded, unavailable)
 public struct String: Hashable { 
     public var utf8CString: ContiguousArray<CChar> { fatalError() }
     public init() {}
 }
+
+@available(_embedded, unavailable)
+extension String {
+  public init<Subject>(describing instance: Subject) { fatalError() }
+
+  public init<Subject>(reflecting instance: Subject) { fatalError() }
+}
+
+@available(_embedded, unavailable)
+extension String {
+  public static func + (lhs: String, rhs: String) -> String  { fatalError() }
+
+  public static func += (lhs: inout String, rhs: String) { fatalError() }
+}
+
+@available(_embedded, unavailable)
+extension String {
+  public var isContiguousUTF8: Bool { fatalError() }
+  public mutating func makeContiguousUTF8() {
+    fatalError()
+  }
+  public mutating func withUTF8<R>(
+    _ body: (UnsafeBufferPointer<UInt8>) throws -> R
+  ) rethrows -> R {
+    fatalError()
+  }
+
+  public var utf8: ContiguousArray<UInt8> { fatalError() }
+
+  public var debugDescription: String { fatalError() }
+}
+
+@available(_embedded, unavailable)
+internal func _rawPointerToString(_ value: Builtin.RawPointer) -> String {
+  fatalError()
+}
+
+@available(_embedded, unavailable)
+public func debugPrint(
+  _ items: Any...,
+  separator: String = " ",
+  terminator: String = "\n"
+) {
+  fatalError()
+}
+
+@available(_embedded, unavailable)
+public func debugPrint<Target: TextOutputStream>(
+  _ items: Any...,
+  separator: String = " ",
+  terminator: String = "\n",
+  to output: inout Target
+) {
+  fatalError()
+}
+
+@available(_embedded, unavailable)
+extension String: TextOutputStream {
+  public mutating func write(_ other: String) {
+    fatalError()
+  }
+
+  public mutating func _writeASCII(_ buffer: UnsafeBufferPointer<UInt8>) {
+    fatalError()
+  }
+}
+
 
 public enum Unicode {}
 
@@ -96,6 +170,19 @@ extension Unicode.Scalar :
   }
 }
 
+extension Unicode.Scalar: Equatable {
+  @inlinable
+  public static func == (lhs: Unicode.Scalar, rhs: Unicode.Scalar) -> Bool {
+    return lhs.value == rhs.value
+  }
+}
+
+extension Unicode.Scalar: Comparable {
+  @inlinable
+  public static func < (lhs: Unicode.Scalar, rhs: Unicode.Scalar) -> Bool {
+    return lhs.value < rhs.value
+  }
+}
 
 // Access the underlying code units
 extension Unicode.Scalar {
@@ -227,10 +314,115 @@ public protocol Decodable {
 public typealias Codable = Encodable & Decodable
 
 @available(_embedded, unavailable)
-public protocol Encoder { }
+public protocol CodingKey: Sendable,
+                           CustomStringConvertible,
+                           CustomDebugStringConvertible {
+  var stringValue: String { get }
+  init?(stringValue: String)
+  var intValue: Int? { get }
+  init?(intValue: Int)
+}
 
 @available(_embedded, unavailable)
-public protocol Decoder { }
+public struct KeyedDecodingContainer<K: CodingKey> { }
+
+@available(_embedded, unavailable)
+public struct KeyedEncodingContainer<K: CodingKey> { }
+
+@available(_embedded, unavailable)
+public protocol UnkeyedDecodingContainer { 
+  mutating func decode<T>(_ type: T.Type) throws -> T
+}
+
+@available(_embedded, unavailable)
+public protocol UnkeyedEncodingContainer { 
+  mutating func encode<T>(_ value: T) throws
+}
+
+@available(_embedded, unavailable)
+public protocol SingleValueDecodingContainer { }
+
+@available(_embedded, unavailable)
+public protocol SingleValueEncodingContainer { }
+
+@available(_embedded, unavailable)
+public protocol Encoder {
+  var codingPath: [any CodingKey] { get }
+  func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key>
+  func unkeyedContainer() -> any UnkeyedEncodingContainer
+  func singleValueContainer() -> any SingleValueEncodingContainer
+}
+
+@available(_embedded, unavailable)
+public protocol Decoder {
+  var codingPath: [any CodingKey] { get }
+  func container<Key>(
+    keyedBy type: Key.Type
+  ) throws -> KeyedDecodingContainer<Key>
+  func unkeyedContainer() throws -> any UnkeyedDecodingContainer
+  func singleValueContainer() throws -> any SingleValueDecodingContainer
+}
+
+@available(_embedded, unavailable)
+public enum DecodingError: Error {
+  /// The context in which the error occurred.
+  public struct Context: Sendable {
+    /// The path of coding keys taken to get to the point of the failing decode
+    /// call.
+    public let codingPath: [any CodingKey]
+
+    /// A description of what went wrong, for debugging purposes.
+    public let debugDescription: String
+
+    /// The underlying error which caused this error, if any.
+    public let underlyingError: Error?
+
+    /// Creates a new context with the given path of coding keys and a
+    /// description of what went wrong.
+    ///
+    /// - parameter codingPath: The path of coding keys taken to get to the
+    ///   point of the failing decode call.
+    /// - parameter debugDescription: A description of what went wrong, for
+    ///   debugging purposes.
+    /// - parameter underlyingError: The underlying error which caused this
+    ///   error, if any.
+    public init(
+      codingPath: [any CodingKey],
+      debugDescription: String,
+      underlyingError: Error? = nil
+    ) {
+      self.codingPath = codingPath
+      self.debugDescription = debugDescription
+      self.underlyingError = underlyingError
+    }
+  }
+
+  /// An indication that a value of the given type could not be decoded because
+  /// it did not match the type of what was found in the encoded payload.
+  ///
+  /// As associated values, this case contains the attempted type and context
+  /// for debugging.
+  case typeMismatch(Any.Type, Context)
+
+  /// An indication that a non-optional value of the given type was expected,
+  /// but a null value was found.
+  ///
+  /// As associated values, this case contains the attempted type and context
+  /// for debugging.
+  case valueNotFound(Any.Type, Context)
+
+  /// An indication that a keyed decoding container was asked for an entry for
+  /// the given key, but did not contain one.
+  ///
+  /// As associated values, this case contains the attempted key and context
+  /// for debugging.
+  case keyNotFound(any CodingKey, Context)
+
+  /// An indication that the data is corrupted or otherwise invalid.
+  ///
+  /// As an associated value, this case contains the context for debugging.
+  case dataCorrupted(Context)
+}
 
 @available(_embedded, unavailable)
 public protocol Identifiable<ID> {
@@ -273,3 +465,141 @@ public class KeyPath<Root, Value>: PartialKeyPath<Root> { }
 
 @available(_embedded, unavailable)
 public class WritableKeyPath<Root, Value>: KeyPath<Root, Value> { }
+
+@available(_embedded, unavailable)
+internal func _int64ToString(
+  _ value: Int64,
+  radix: Int64 = 10,
+  uppercase: Bool = false
+) -> String {
+  fatalError()
+}
+
+@available(_embedded, unavailable)
+internal func _float64ToString(
+  _ value: Float64,
+  debug: Bool
+) -> (buffer: _Buffer32, length: Int) {
+  fatalError()
+}
+
+@available(_embedded, unavailable)
+internal func _float16ToString(
+  _ value: Float16,
+  debug: Bool
+) -> (buffer: _Buffer32, length: Int) {
+  fatalError()
+}
+
+internal func _float32ToString(
+  _ value: Float32,
+  debug: Bool
+) -> (buffer: _Buffer32, length: Int) {
+  fatalError()
+}
+
+@available(_embedded, unavailable)
+public // @testable
+func _uint64ToString(
+    _ value: UInt64,
+    radix: Int64 = 10,
+    uppercase: Bool = false
+) -> String {
+  fatalError()
+}
+
+@available(_embedded, unavailable)
+extension String {
+  @usableFromInline
+  internal static func _fromUTF8Repairing(
+    _ input: UnsafeBufferPointer<UInt8>
+  ) -> (result: String, repairsMade: Bool) { fatalError() }
+}
+
+@available(_embedded, unavailable)
+extension String {
+  internal static func _fromASCII(
+    _ input: UnsafeBufferPointer<UInt8>
+  ) -> String {
+    fatalError()
+  }
+
+  @usableFromInline
+  internal static func _uncheckedFromUTF8(
+    _ input: UnsafeBufferPointer<UInt8>
+  ) -> String {
+    fatalError()
+  }
+
+  @usableFromInline
+  internal static func _uncheckedFromUTF8(
+    _ input: UnsafeBufferPointer<UInt8>,
+    isASCII: Bool
+  ) -> String {
+    fatalError()
+  }
+
+  // If we've already pre-scanned for ASCII, just supply the result
+  @usableFromInline
+  internal static func _uncheckedFromUTF8(
+    _ input: UnsafeBufferPointer<UInt8>, asciiPreScanResult: Bool
+  ) -> String {
+    fatalError()
+  }
+
+}
+
+/// A 32 byte buffer.
+internal struct _Buffer32 {
+  internal var _x0: UInt8 = 0
+  internal var _x1: UInt8 = 0
+  internal var _x2: UInt8 = 0
+  internal var _x3: UInt8 = 0
+  internal var _x4: UInt8 = 0
+  internal var _x5: UInt8 = 0
+  internal var _x6: UInt8 = 0
+  internal var _x7: UInt8 = 0
+  internal var _x8: UInt8 = 0
+  internal var _x9: UInt8 = 0
+  internal var _x10: UInt8 = 0
+  internal var _x11: UInt8 = 0
+  internal var _x12: UInt8 = 0
+  internal var _x13: UInt8 = 0
+  internal var _x14: UInt8 = 0
+  internal var _x15: UInt8 = 0
+  internal var _x16: UInt8 = 0
+  internal var _x17: UInt8 = 0
+  internal var _x18: UInt8 = 0
+  internal var _x19: UInt8 = 0
+  internal var _x20: UInt8 = 0
+  internal var _x21: UInt8 = 0
+  internal var _x22: UInt8 = 0
+  internal var _x23: UInt8 = 0
+  internal var _x24: UInt8 = 0
+  internal var _x25: UInt8 = 0
+  internal var _x26: UInt8 = 0
+  internal var _x27: UInt8 = 0
+  internal var _x28: UInt8 = 0
+  internal var _x29: UInt8 = 0
+  internal var _x30: UInt8 = 0
+  internal var _x31: UInt8 = 0
+
+  internal init() {}
+
+  internal mutating func withBytes<Result>(
+    _ body: (UnsafeMutablePointer<UInt8>) throws -> Result
+  ) rethrows -> Result {
+    return try withUnsafeMutablePointer(to: &self) {
+      try body(UnsafeMutableRawPointer($0).assumingMemoryBound(to: UInt8.self))
+    }
+  }
+}
+
+@available(_embedded, unavailable)
+extension String {
+  public init<T: BinaryInteger>(
+    _ value: T, radix: Int = 10, uppercase: Bool = false
+  ) {
+    fatalError()
+  }
+}

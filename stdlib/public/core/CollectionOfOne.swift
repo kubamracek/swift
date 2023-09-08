@@ -162,7 +162,11 @@ extension CollectionOfOne: RandomAccessCollection, MutableCollection {
 extension CollectionOfOne: CustomDebugStringConvertible {
   /// A textual representation of the collection, suitable for debugging.
   public var debugDescription: String {
+    #if !_mode(_Embedded)
     return "CollectionOfOne(\(String(reflecting: _element)))"
+    #else
+    fatalError()
+    #endif
   }
 }
 

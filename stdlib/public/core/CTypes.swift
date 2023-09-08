@@ -268,11 +268,15 @@ public struct CVaListPointer {
 @available(_embedded, unavailable)
 extension CVaListPointer: CustomDebugStringConvertible {
   public var debugDescription: String {
+    #if _mode(_Normal)
     return "(\(_value.__stack.debugDescription), " +
            "\(_value.__gr_top.debugDescription), " +
            "\(_value.__vr_top.debugDescription), " +
            "\(_value.__gr_off), " +
            "\(_value.__vr_off))"
+    #else
+    fatalError()
+    #endif
   }
 }
 

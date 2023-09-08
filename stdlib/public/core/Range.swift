@@ -392,8 +392,12 @@ extension Range: CustomStringConvertible {
 extension Range: CustomDebugStringConvertible {
   /// A textual representation of the range, suitable for debugging.
   public var debugDescription: String {
+    #if _mode(_Normal)
     return "Range(\(String(reflecting: lowerBound))"
     + "..<\(String(reflecting: upperBound)))"
+    #else
+    fatalError()
+    #endif
   }
 }
 
@@ -447,6 +451,7 @@ extension Range: Hashable where Bound: Hashable {
 @available(_embedded, unavailable)
 extension Range: Decodable where Bound: Decodable {
   public init(from decoder: Decoder) throws {
+    #if _mode(_Normal)
     var container = try decoder.unkeyedContainer()
     let lowerBound = try container.decode(Bound.self)
     let upperBound = try container.decode(Bound.self)
@@ -457,6 +462,9 @@ extension Range: Decodable where Bound: Decodable {
           debugDescription: "Cannot initialize \(Range.self) with a lowerBound (\(lowerBound)) greater than upperBound (\(upperBound))"))
     }
     self.init(_uncheckedBounds: (lower: lowerBound, upper: upperBound))
+    #else
+    fatalError()
+    #endif
   }
 }
 

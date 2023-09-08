@@ -1961,6 +1961,7 @@ extension Array {
 }
 #endif
 
+@available(_embedded, unavailable)
 extension Array: _HasCustomAnyHashableRepresentation
   where Element: Hashable {
   public __consuming func _toCustomAnyHashable() -> AnyHashable? {
@@ -1968,11 +1969,13 @@ extension Array: _HasCustomAnyHashableRepresentation
   }
 }
 
+@available(_embedded, unavailable)
 internal protocol _ArrayAnyHashableProtocol: _AnyHashableBox {
   var count: Int { get }
   subscript(index: Int) -> AnyHashable { get }
 }
 
+@available(_embedded, unavailable)
 internal struct _ArrayAnyHashableBox<Element: Hashable>
   : _ArrayAnyHashableProtocol {
   internal let _value: [Element]

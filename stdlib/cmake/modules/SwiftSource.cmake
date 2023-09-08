@@ -938,7 +938,6 @@ function(_compile_swift_files
     set(copy_legacy_layouts_dep)
   endif()
 
-  if(0)
   add_custom_command_target(
       dependency_target
       COMMAND
@@ -958,7 +957,6 @@ function(_compile_swift_files
         ${copy_legacy_layouts_dep}
       COMMENT "Compiling ${first_output}")
   set("${dependency_target_out_var_name}" "${dependency_target}" PARENT_SCOPE)
-  endif()
 
   # This is the target to generate:
   #
@@ -1013,8 +1011,8 @@ function(_compile_swift_files
           ${specific_module_dir_static}
         COMMAND
           "${CMAKE_COMMAND}" "-E" "copy" ${module_file} ${module_file_static}
-        #COMMAND
-        #  "${CMAKE_COMMAND}" "-E" "copy" ${module_doc_file} ${module_doc_file_static}
+        COMMAND
+          "${CMAKE_COMMAND}" "-E" "copy" ${module_doc_file} ${module_doc_file_static}
         ${command_copy_interface_file}
         OUTPUT ${module_outputs_static}
         DEPENDS
