@@ -261,7 +261,9 @@ extension ArraySlice: _ArrayProtocol {
     return _getCapacity()
   }
 
+  #if _mode(_Embedded)
   public typealias AnyObject = Builtin.NativeObject
+  #endif
 
   /// An object that guarantees the lifetime of this array's elements.
   @inlinable
@@ -1150,6 +1152,7 @@ extension ArraySlice: CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 extension ArraySlice {
+  #if _mode(_Embedded)
   @usableFromInline @_transparent
   @available(_embedded, unavailable)
   internal func _cPointerArgs() -> (Builtin.NativeObject?, UnsafeRawPointer?) {
@@ -1160,6 +1163,17 @@ extension ArraySlice {
     let n = ContiguousArray(self._buffer)._buffer
     return (n.owner, UnsafeRawPointer(n.firstElementAddress))
   }
+  #else
+  @usableFromInline @_transparent
+  internal func _cPointerArgs() -> (AnyObject?, UnsafeRawPointer?) {
+    let p = _baseAddressIfContiguous
+    if _fastPath(p != nil || isEmpty) {
+      return (_owner, UnsafeRawPointer(p))
+    }
+    let n = ContiguousArray(self._buffer)._buffer
+    return (n.owner, UnsafeRawPointer(n.firstElementAddress))
+  }
+  #endif
 }
 
 extension ArraySlice {

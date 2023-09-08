@@ -477,7 +477,7 @@ extension Array: _ArrayProtocol {
   }
 
   /// An object that guarantees the lifetime of this array's elements.
-  @inlinable
+  #if _mode(_Embedded)
   public // @testable
   var _owner: Builtin.NativeObject? {
     @inlinable // FIXME(inline-always)
@@ -486,6 +486,17 @@ extension Array: _ArrayProtocol {
       return _buffer.owner      
     }
   }
+  #else
+  @inlinable
+  public // @testable
+  var _owner: AnyObject? {
+    @inlinable // FIXME(inline-always)
+    @inline(__always)
+    get {
+      return _buffer.owner      
+    }
+  }
+  #endif
 
   /// If the elements are stored contiguously, a pointer to the first
   /// element. Otherwise, `nil`.
@@ -1481,6 +1492,18 @@ extension Array: CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 extension Array {
+  #if _mode(_Normal)
+  @usableFromInline @_transparent
+  @available(_embedded, unavailable)
+  internal func _cPointerArgs() -> (AnyObject?, UnsafeRawPointer?) {
+    let p = _baseAddressIfContiguous
+    if _fastPath(p != nil || isEmpty) {
+      return (_owner, UnsafeRawPointer(p))
+    }
+    let n = ContiguousArray(self._buffer)._buffer
+    return (n.owner, UnsafeRawPointer(n.firstElementAddress))
+  }
+  #else
   @usableFromInline @_transparent
   @available(_embedded, unavailable)
   internal func _cPointerArgs() -> (Builtin.NativeObject?, UnsafeRawPointer?) {
@@ -1491,6 +1514,7 @@ extension Array {
     let n = ContiguousArray(self._buffer)._buffer
     return (n.owner, UnsafeRawPointer(n.firstElementAddress))
   }
+  #endif
 }
 
 extension Array {

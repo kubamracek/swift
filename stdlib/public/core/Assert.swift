@@ -164,7 +164,7 @@ public func assertionFailure(
 ///     where `preconditionFailure(_:file:line:)` is called.
 ///   - line: The line number to print along with `message`. The default is the
 ///     line number where `preconditionFailure(_:file:line:)` is called.
-
+#if _mode(_Normal)
 @_transparent
 @available(_embedded, unavailable)
 public func preconditionFailure(
@@ -181,7 +181,7 @@ public func preconditionFailure(
   }
   _conditionallyUnreachable()
 }
-
+#else
 @_transparent
 public func preconditionFailure(
   _ message: @autoclosure () -> StaticString = StaticString(),
@@ -197,6 +197,7 @@ public func preconditionFailure(
   }
   _conditionallyUnreachable()
 }
+#endif
 
 /// Unconditionally prints a given message and stops execution.
 ///

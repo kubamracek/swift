@@ -17,16 +17,23 @@ internal struct _SliceBuffer<Element>
   : _ArrayBufferProtocol,
     RandomAccessCollection
 {
+  #if _mode(_Embedded)
   @usableFromInline
   typealias AnyObject = Builtin.NativeObject
+  #endif
 
   internal typealias NativeStorage = _ContiguousArrayStorage<Element>
   @usableFromInline
   internal typealias NativeBuffer = _ContiguousArrayBuffer<Element>
 
+  #if _mode(_Embedded)
   /// An object that keeps the elements stored in this buffer alive.
   @usableFromInline
   internal var owner: Builtin.NativeObject
+  #else
+  @usableFromInline
+  internal var owner: AnyObject
+  #endif
 
   @usableFromInline
   internal let subscriptBaseAddress: UnsafeMutablePointer<Element>
@@ -43,7 +50,7 @@ internal struct _SliceBuffer<Element>
 
   @inlinable
   internal init(
-    owner: Builtin.NativeObject,
+    owner: AnyObject,
     subscriptBaseAddress: UnsafeMutablePointer<Element>,
     startIndex: Int,
     endIndexAndFlags: UInt
@@ -56,7 +63,7 @@ internal struct _SliceBuffer<Element>
 
   @inlinable
   internal init(
-    owner: Builtin.NativeObject, subscriptBaseAddress: UnsafeMutablePointer<Element>,
+    owner: AnyObject, subscriptBaseAddress: UnsafeMutablePointer<Element>,
     indices: Range<Int>, hasNativeBuffer: Bool
   ) {
     self.owner = owner
@@ -70,7 +77,11 @@ internal struct _SliceBuffer<Element>
   @inlinable
   internal init() {
     let empty = _ContiguousArrayBuffer<Element>()
+    #if _mode(_Embedded)
     self.owner = Builtin.castToNativeObject(_emptyArrayStorage)
+    #else
+    self.owner = _emptyArrayStorage
+    #endif
     self.subscriptBaseAddress = empty.firstElementAddress
     self.startIndex = empty.startIndex
     self.endIndexAndFlags = 1
@@ -120,7 +131,7 @@ internal struct _SliceBuffer<Element>
   }
 
   @inlinable
-  internal var nativeOwner: Builtin.NativeObject {
+  internal var nativeOwner: AnyObject {
     _internalInvariant(_hasNativeBuffer, "Expect a native array")
     return owner
   }

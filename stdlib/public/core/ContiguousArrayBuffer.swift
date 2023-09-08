@@ -690,8 +690,13 @@ internal struct _ContiguousArrayBuffer<Element>: _ArrayBufferProtocol {
   @inlinable
   internal subscript(bounds: Range<Int>) -> _SliceBuffer<Element> {
     get {
+      #if _mode(_Embedded)
+      let storage = Builtin.castToNativeObject(_storage)
+      #else
+      let storage = _storage
+      #endif
       return _SliceBuffer(
-        owner: Builtin.castToNativeObject(_storage),
+        owner: storage,
         subscriptBaseAddress: firstElementAddress,
         indices: bounds,
         hasNativeBuffer: true)
@@ -839,6 +844,19 @@ internal struct _ContiguousArrayBuffer<Element>: _ArrayBufferProtocol {
   }
 #endif
 
+  #if _mode(_Normal)
+  /// An object that keeps the elements stored in this buffer alive.
+  @inlinable
+  internal var owner: AnyObject {
+    return _storage
+  }
+
+  /// An object that keeps the elements stored in this buffer alive.
+  @inlinable
+  internal var nativeOwner: AnyObject {
+    return _storage
+  }
+  #else
   /// An object that keeps the elements stored in this buffer alive.
   @inlinable
   internal var owner: Builtin.NativeObject {
@@ -850,6 +868,7 @@ internal struct _ContiguousArrayBuffer<Element>: _ArrayBufferProtocol {
   internal var nativeOwner: Builtin.NativeObject {
     return Builtin.castToNativeObject(_storage)
   }
+  #endif
 
   /// A value that identifies the storage used by the buffer.
   ///
