@@ -22,6 +22,7 @@ set(SWIFTLIB_EMBEDDED_SOURCES
   ArrayType.swift
   Assert.swift
   AssertCommon.swift
+  Availability.swift
   BidirectionalCollection.swift
   Bool.swift
   Builtin.swift
@@ -44,6 +45,7 @@ set(SWIFTLIB_EMBEDDED_SOURCES
   FloatingPoint.swift
   Hashable.swift
   Hasher.swift
+  Identifiable.swift
   Indices.swift
   Instant.swift
   Integers.swift
@@ -56,6 +58,7 @@ set(SWIFTLIB_EMBEDDED_SOURCES
   Optional.swift
   Pointer.swift
   Policy.swift
+  Random.swift
   RandomAccessCollection.swift
   Range.swift
   RangeReplaceableCollection.swift
@@ -158,7 +161,6 @@ set(SWIFTLIB_ESSENTIAL
   Hasher.swift
   Hashing.swift
   HashTable.swift
-  Identifiable.swift
   Indices.swift
   InputStream.swift
   IntegerParsing.swift

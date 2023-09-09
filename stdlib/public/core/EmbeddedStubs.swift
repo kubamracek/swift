@@ -12,13 +12,6 @@
 
 import SwiftShims
 
-/// SwiftStdlibVersion
-
-public typealias _SwiftStdlibVersion = SwiftShims._SwiftStdlibVersion
-
-@available(_embedded, unavailable)
-internal func _isExecutableLinkedOnOrAfter(_ stdlibVersion: _SwiftStdlibVersion) -> Bool { fatalError() }
-
 /// String
 
 @available(_embedded, unavailable)
@@ -241,14 +234,7 @@ public protocol Decodable {
 public typealias Codable = Encodable & Decodable
 
 @available(_embedded, unavailable)
-public protocol CodingKey: Sendable,
-                           CustomStringConvertible,
-                           CustomDebugStringConvertible {
-  var stringValue: String { get }
-  init?(stringValue: String)
-  var intValue: Int? { get }
-  init?(intValue: Int)
-}
+public protocol CodingKey { }
 
 @available(_embedded, unavailable)
 public struct KeyedDecodingContainer<K: CodingKey> { }
@@ -283,9 +269,7 @@ public protocol Encoder {
 @available(_embedded, unavailable)
 public protocol Decoder {
   var codingPath: [any CodingKey] { get }
-  func container<Key>(
-    keyedBy type: Key.Type
-  ) throws -> KeyedDecodingContainer<Key>
+  func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key>
   func unkeyedContainer() throws -> any UnkeyedDecodingContainer
   func singleValueContainer() throws -> any SingleValueDecodingContainer
 }
@@ -293,57 +277,12 @@ public protocol Decoder {
 @available(_embedded, unavailable)
 public enum DecodingError: Error {
   public struct Context: Sendable {
-    public let codingPath: [any CodingKey]
-
-    public let debugDescription: String
-
-    public let underlyingError: Error?
-
-    public init(
-      codingPath: [any CodingKey],
-      debugDescription: String,
-      underlyingError: Error? = nil
-    ) {
-      self.codingPath = codingPath
-      self.debugDescription = debugDescription
-      self.underlyingError = underlyingError
-    }
+    public init(codingPath: [any CodingKey], debugDescription: String, underlyingError: Error? = nil) { fatalError() }
   }
   case typeMismatch(Any.Type, Context)
   case valueNotFound(Any.Type, Context)
   case keyNotFound(any CodingKey, Context)
   case dataCorrupted(Context)
-}
-
-/// Identifiable
-
-@available(_embedded, unavailable)
-public protocol Identifiable<ID> {
-  associatedtype ID: Hashable
-  var id: ID { get }
-}
-
-/// RandomNumberGenerator
-
-@available(_embedded, unavailable)
-public protocol RandomNumberGenerator { 
-    mutating func next() -> UInt64
-}
-
-@available(_embedded, unavailable)
-extension RandomNumberGenerator {
-  @inlinable
-  public mutating func next<T: FixedWidthInteger & UnsignedInteger>(
-    upperBound: T
-  ) -> T { fatalError() }
-}
-
-@available(_embedded, unavailable)
-public struct SystemRandomNumberGenerator: RandomNumberGenerator, Sendable {
-    @inlinable
-    public init() { }
-
-    public mutating func next() -> UInt64 { fatalError() }
 }
 
 /// KeyPath
