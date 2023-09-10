@@ -392,7 +392,7 @@ extension Range: CustomStringConvertible {
 extension Range: CustomDebugStringConvertible {
   /// A textual representation of the range, suitable for debugging.
   public var debugDescription: String {
-    #if _mode(_Normal)
+    #if !$Embedded
     return "Range(\(String(reflecting: lowerBound))"
     + "..<\(String(reflecting: upperBound)))"
     #else
@@ -451,7 +451,7 @@ extension Range: Hashable where Bound: Hashable {
 @_unavailableInEmbedded
 extension Range: Decodable where Bound: Decodable {
   public init(from decoder: Decoder) throws {
-    #if _mode(_Normal)
+    #if !$Embedded
     var container = try decoder.unkeyedContainer()
     let lowerBound = try container.decode(Bound.self)
     let upperBound = try container.decode(Bound.self)
@@ -1051,7 +1051,7 @@ extension PartialRangeThrough: Sendable where Bound: Sendable { }
 extension PartialRangeFrom: Sendable where Bound: Sendable { }
 extension PartialRangeFrom.Iterator: Sendable where Bound: Sendable { }
 
-#if _mode(_Normal)
+#if !$Embedded
 extension Range where Bound == String.Index {
   @_alwaysEmitIntoClient // Swift 5.7
   internal var _encodedOffsetRange: Range<Int> {

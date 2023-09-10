@@ -102,7 +102,7 @@ internal struct _SliceBuffer<Element>
   internal func _invariantCheck() {
     let isNative = _hasNativeBuffer
     let isNativeStorage: Bool
-    #if _mode(_Normal)
+    #if !$Embedded
     isNativeStorage = owner is __ContiguousArrayStorageBase
     #else
     isNativeStorage = true
@@ -121,7 +121,7 @@ internal struct _SliceBuffer<Element>
   @inlinable
   internal var nativeBuffer: NativeBuffer {
     _internalInvariant(_hasNativeBuffer)
-    #if _mode(_Normal)
+    #if !$Embedded
     return NativeBuffer(
       owner as? __ContiguousArrayStorageBase ?? _emptyArrayStorage)
     #else

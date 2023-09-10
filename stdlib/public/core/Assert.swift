@@ -164,7 +164,7 @@ public func assertionFailure(
 ///     where `preconditionFailure(_:file:line:)` is called.
 ///   - line: The line number to print along with `message`. The default is the
 ///     line number where `preconditionFailure(_:file:line:)` is called.
-#if _mode(_Normal)
+#if !$Embedded
 @_transparent
 @_unavailableInEmbedded
 public func preconditionFailure(
@@ -207,7 +207,7 @@ public func preconditionFailure(
 ///     where `fatalError(_:file:line:)` is called.
 ///   - line: The line number to print along with `message`. The default is the
 ///     line number where `fatalError(_:file:line:)` is called.
-#if _mode(_Normal)
+#if !$Embedded
 @_transparent
 @_unavailableInEmbedded
 public func fatalError(

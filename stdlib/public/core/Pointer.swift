@@ -16,7 +16,7 @@ public typealias _CustomReflectableOrNone = CustomReflectable
 public typealias _CustomReflectableOrNone = Any
 #endif
 
-#if _mode(_Normal)
+#if !$Embedded
 public typealias _CustomDebugStringConvertibleOrNone = CustomDebugStringConvertible
 #else
 public typealias _CustomDebugStringConvertibleOrNone = Any

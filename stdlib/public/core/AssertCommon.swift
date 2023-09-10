@@ -95,7 +95,7 @@ internal func _assertionFailure(
   file: StaticString, line: UInt,
   flags: UInt32
 ) -> Never {
-#if _mode(_Normal)
+#if !$Embedded
   prefix.withUTF8Buffer {
     (prefix) -> Void in
     message.withUTF8Buffer {
@@ -217,7 +217,7 @@ func _unimplementedInitializer(className: StaticString,
   // redundant parameter values (#file etc.) are eliminated, and don't leak
   // information about the user's source.
 
-#if _mode(_Normal)
+#if !$Embedded
   if _isDebugAssertConfiguration() {
     className.withUTF8Buffer {
       (className) in
@@ -272,7 +272,7 @@ internal func _diagnoseUnexpectedEnumCaseValue<SwitchedValue, RawValue>(
   type: SwitchedValue.Type,
   rawValue: RawValue
 ) -> Never {
-#if _mode(_Normal)
+#if !$Embedded
   _assertionFailure("Fatal error",
                     "unexpected enum case '\(type)(rawValue: \(rawValue))'",
                     flags: _fatalErrorFlags())
@@ -292,7 +292,7 @@ internal func _diagnoseUnexpectedEnumCaseValue<SwitchedValue, RawValue>(
 internal func _diagnoseUnexpectedEnumCase<SwitchedValue>(
   type: SwitchedValue.Type
 ) -> Never {
-#if _mode(_Normal)
+#if !$Embedded
   _assertionFailure(
     "Fatal error",
     "unexpected enum case while switching on value of type '\(type)'",

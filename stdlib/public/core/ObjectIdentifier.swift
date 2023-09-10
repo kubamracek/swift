@@ -68,7 +68,7 @@ public struct ObjectIdentifier: Sendable {
 extension ObjectIdentifier: CustomDebugStringConvertible {
   /// A textual representation of the identifier, suitable for debugging.
   public var debugDescription: String {
-    #if _mode(_Normal)
+    #if !$Embedded
     return "ObjectIdentifier(\(_rawPointerToString(_value)))"
     #else
     fatalError()

@@ -178,7 +178,7 @@ public func _withUnprotectedUnsafePointer<T, Result>(
 #endif
 }
 
-#if _mode(_Normal)
+#if !$Embedded
 extension String {
   /// Calls the given closure with a pointer to the contents of the string,
   /// represented as a null-terminated sequence of UTF-8 code units.

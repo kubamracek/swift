@@ -303,7 +303,7 @@ internal struct _ContiguousArrayBuffer<Element>: _ArrayBufferProtocol {
 
       let storageAddr = UnsafeMutableRawPointer(Builtin.bridgeToRawPointer(_storage))
       let allocSize: Int?
-      #if _mode(_Normal)
+      #if !$Embedded
       allocSize = _mallocSize(ofAllocation: storageAddr)
       #else
       allocSize = nil
@@ -844,7 +844,7 @@ internal struct _ContiguousArrayBuffer<Element>: _ArrayBufferProtocol {
   }
 #endif
 
-  #if _mode(_Normal)
+  #if !$Embedded
   /// An object that keeps the elements stored in this buffer alive.
   @inlinable
   internal var owner: AnyObject {

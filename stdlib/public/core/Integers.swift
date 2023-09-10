@@ -567,7 +567,7 @@ extension AdditiveArithmetic {
 ///     }
 ///     // Prints "23 is greater than -23."
 
-#if _mode(_Normal)
+#if !$Embedded
 public typealias _CustomStringConvertibleOrNone = CustomStringConvertible
 #else
 public typealias _CustomStringConvertibleOrNone = Any
@@ -1900,7 +1900,7 @@ extension BinaryInteger {
 /// methods, the standard library provides default implementations for all
 /// other arithmetic methods and operators.
 
-#if _mode(_Normal)
+#if !$Embedded
 public typealias _LosslessStringConvertibleOrNone = LosslessStringConvertible
 #else
 public typealias _LosslessStringConvertibleOrNone = Any

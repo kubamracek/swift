@@ -18,7 +18,7 @@ where Indices == Range<Int> {
   var capacity: Int { get }
 
   /// An object that guarantees the lifetime of this array's elements.
-  #if _mode(_Normal)
+  #if !$Embedded
   var _owner: AnyObject? { get }
   #else
   var _owner: Builtin.NativeObject? { get }

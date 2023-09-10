@@ -187,7 +187,7 @@ public func _unexpectedError(
   filenameIsASCII: Builtin.Int1,
   line: Builtin.Word
 ) {
-  #if _mode(_Normal)
+  #if !$Embedded
   preconditionFailure(
     "'try!' expression unexpectedly raised an error: \(String(reflecting: error))",
     file: StaticString(
@@ -203,7 +203,7 @@ public func _unexpectedError(
 /// Invoked by the compiler when code at top level throws an uncaught error.
 @_silgen_name("swift_errorInMain")
 public func _errorInMain(_ error: Error) {
-  #if _mode(_Normal)
+  #if !$Embedded
   fatalError("Error raised at top level: \(String(reflecting: error))")
   #else
   Builtin.int_trap()

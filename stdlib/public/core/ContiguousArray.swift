@@ -148,7 +148,7 @@ extension ContiguousArray: _ArrayProtocol {
   }
 
   /// An object that guarantees the lifetime of this array's elements.
-  #if _mode(_Normal)
+  #if !$Embedded
   @inlinable
   public // @testable
   var _owner: AnyObject? {
