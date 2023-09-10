@@ -3,7 +3,7 @@
 public protocol Player {}
 struct Concrete: Player {}
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func test() -> any Player {
   Concrete() // no error because we're in unavailable-in-embedded context
 }

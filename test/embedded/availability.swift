@@ -4,19 +4,19 @@
 // Building with embedded Swift should produce unavailability errors
 // RUN: %target-typecheck-verify-swift -parse-stdlib -enable-experimental-feature Embedded
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func embedded() { }
 public func regular() {
-	embedded() // expected-error {{'embedded()' is unavailable in embedded Swift}}
+	embedded() // expected-error {{'embedded()' is unavailable: unavailable in embedded Swift}}
 	// expected-note@-3 {{'embedded()' has been explicitly marked unavailable here}}
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func unused() { } // no error
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func called_from_unavailable() { }
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func also_embedded() { 
 	called_from_unavailable() // no error
 }
