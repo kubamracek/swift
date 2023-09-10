@@ -98,7 +98,7 @@ where Indices == Range<Int> {
   var capacity: Int { get }
 
   /// An object that keeps the elements stored in this buffer alive.
-  #if _mode(_Embedded)
+  #if $Embedded
   var owner: Builtin.NativeObject { get }
   #else
   var owner: AnyObject { get }

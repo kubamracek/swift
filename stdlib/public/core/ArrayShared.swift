@@ -102,7 +102,7 @@ extension Collection {
   internal func _makeCollectionDescription(
     withTypeName type: String? = nil
   ) -> String {
-#if !SWIFT_STDLIB_STATIC_PRINT && !_mode(_Embedded)
+#if !SWIFT_STDLIB_STATIC_PRINT && !$Embedded
     var result = ""
     if let type = type {
       result += "\(type)(["

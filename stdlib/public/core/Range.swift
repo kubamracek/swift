@@ -380,7 +380,7 @@ extension Range: CustomStringConvertible {
   /// A textual representation of the range.
   @inlinable // trivial-implementation
   public var description: String {
-    #if _mode(_Embedded)
+    #if $Embedded
     fatalError()
     #else
     return "\(lowerBound)..<\(upperBound)"

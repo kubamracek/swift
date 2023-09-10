@@ -17,7 +17,7 @@ internal struct _SliceBuffer<Element>
   : _ArrayBufferProtocol,
     RandomAccessCollection
 {
-  #if _mode(_Embedded)
+  #if $Embedded
   @usableFromInline
   typealias AnyObject = Builtin.NativeObject
   #endif
@@ -26,7 +26,7 @@ internal struct _SliceBuffer<Element>
   @usableFromInline
   internal typealias NativeBuffer = _ContiguousArrayBuffer<Element>
 
-  #if _mode(_Embedded)
+  #if $Embedded
   /// An object that keeps the elements stored in this buffer alive.
   @usableFromInline
   internal var owner: Builtin.NativeObject
@@ -77,7 +77,7 @@ internal struct _SliceBuffer<Element>
   @inlinable
   internal init() {
     let empty = _ContiguousArrayBuffer<Element>()
-    #if _mode(_Embedded)
+    #if $Embedded
     self.owner = Builtin.castToNativeObject(_emptyArrayStorage)
     #else
     self.owner = _emptyArrayStorage

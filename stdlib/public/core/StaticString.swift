@@ -205,7 +205,7 @@ public struct StaticString: Sendable {
       return body(UnsafeBufferPointer(
         start: utf8Start, count: utf8CodeUnitCount))
     } else {
-      #if _mode(_Embedded)
+      #if $Embedded
       fatalError()
       #else
       return unicodeScalar.withUTF8CodeUnits { body($0) }

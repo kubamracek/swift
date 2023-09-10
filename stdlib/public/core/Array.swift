@@ -477,7 +477,7 @@ extension Array: _ArrayProtocol {
   }
 
   /// An object that guarantees the lifetime of this array's elements.
-  #if _mode(_Embedded)
+  #if $Embedded
   public // @testable
   var _owner: Builtin.NativeObject? {
     @inlinable // FIXME(inline-always)

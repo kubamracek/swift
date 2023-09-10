@@ -690,7 +690,7 @@ internal struct _ContiguousArrayBuffer<Element>: _ArrayBufferProtocol {
   @inlinable
   internal subscript(bounds: Range<Int>) -> _SliceBuffer<Element> {
     get {
-      #if _mode(_Embedded)
+      #if $Embedded
       let storage = Builtin.castToNativeObject(_storage)
       #else
       let storage = _storage

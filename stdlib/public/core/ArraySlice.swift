@@ -261,7 +261,7 @@ extension ArraySlice: _ArrayProtocol {
     return _getCapacity()
   }
 
-  #if _mode(_Embedded)
+  #if $Embedded
   public typealias AnyObject = Builtin.NativeObject
   #endif
 
@@ -1152,7 +1152,7 @@ extension ArraySlice: CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 extension ArraySlice {
-  #if _mode(_Embedded)
+  #if $Embedded
   @usableFromInline @_transparent
   @_unavailableInEmbedded
   internal func _cPointerArgs() -> (Builtin.NativeObject?, UnsafeRawPointer?) {

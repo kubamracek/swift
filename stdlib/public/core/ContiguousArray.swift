@@ -1060,7 +1060,7 @@ extension ContiguousArray: CustomStringConvertible, CustomDebugStringConvertible
 }
 
 extension ContiguousArray {
-  #if _mode(_Embedded)
+  #if $Embedded
   @usableFromInline @_transparent
   @_unavailableInEmbedded
   internal func _cPointerArgs() -> (Builtin.NativeObject?, UnsafeRawPointer?) {

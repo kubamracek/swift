@@ -111,7 +111,7 @@ import SwiftShims
 ///     }
 ///     // Prints "Parsing error: mismatchedTag [19:5]"
 public protocol Error: Sendable {
-#if !_mode(_Embedded)
+#if !$Embedded
   var _domain: String { get }
   var _code: Int { get }
 
@@ -215,7 +215,7 @@ public func _errorInMain(_ error: Error) {
 @_silgen_name("_swift_stdlib_getDefaultErrorCode")
 public func _getDefaultErrorCode<T: Error>(_ error: T) -> Int
 
-#if !_mode(_Embedded)
+#if !$Embedded
 extension Error {
   public var _code: Int {
     return _getDefaultErrorCode(self)

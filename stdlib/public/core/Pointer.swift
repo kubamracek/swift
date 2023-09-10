@@ -419,7 +419,7 @@ func _convertInOutToPointerArgument<
 ///
 /// This always produces a non-null pointer, even if the array doesn't have any
 /// storage.
-#if _mode(_Embedded)
+#if $Embedded
 @_transparent
 @_unavailableInEmbedded
 public // COMPILER_INTRINSIC
@@ -464,7 +464,7 @@ func _convertConstArrayToPointerArgument<
 /// Derive a pointer argument from an inout array parameter.
 ///
 /// This always produces a non-null pointer, even if the array's length is 0.
-#if _mode(_Embedded)
+#if $Embedded
 @_transparent
 @_unavailableInEmbedded
 public // COMPILER_INTRINSIC
@@ -501,7 +501,7 @@ func _convertMutableArrayToPointerArgument<
 #endif
 
 /// Derive a UTF-8 pointer argument from a value string parameter.
-#if _mode(_Embedded)
+#if $Embedded
 @_transparent
 @_unavailableInEmbedded
 public // COMPILER_INTRINSIC

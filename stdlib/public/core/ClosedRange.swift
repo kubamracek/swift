@@ -385,7 +385,7 @@ extension ClosedRange: CustomStringConvertible {
   /// A textual representation of the range.
   @inlinable // trivial-implementation...
   public var description: String {
-    #if _mode(_Embedded)
+    #if $Embedded
     fatalError()
     #else
     return "\(lowerBound)...\(upperBound)"
@@ -397,7 +397,7 @@ extension ClosedRange: CustomStringConvertible {
 extension ClosedRange: CustomDebugStringConvertible {
   /// A textual representation of the range, suitable for debugging.
   public var debugDescription: String {
-    #if _mode(_Embedded)
+    #if $Embedded
     fatalError()
     #else
     return "ClosedRange(\(String(reflecting: lowerBound))"
@@ -490,7 +490,7 @@ public typealias CountableClosedRange<Bound: Strideable> = ClosedRange<Bound>
 @_unavailableInEmbedded
 extension ClosedRange: Decodable where Bound: Decodable {
   public init(from decoder: Decoder) throws {
-    #if _mode(_Embedded)
+    #if $Embedded
     fatalError()
     #else
     var container = try decoder.unkeyedContainer()
