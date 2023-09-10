@@ -538,7 +538,6 @@ ParserResult<AvailableAttr> Parser::parseExtendedAvailabilitySpecList(
       // I'm not sure what their spellings are at the moment, so I'm
       // crashing instead of handling them.
       case PlatformAgnosticAvailabilityKind::UnavailableInSwift:
-      case PlatformAgnosticAvailabilityKind::NoEmbedded:
       case PlatformAgnosticAvailabilityKind::SwiftVersionSpecific:
       case PlatformAgnosticAvailabilityKind::PackageDescriptionVersionSpecific:
         llvm_unreachable("Unknown availability kind for parser");
@@ -731,11 +730,6 @@ ParserResult<AvailableAttr> Parser::parseExtendedAvailabilitySpecList(
     PlatformAgnostic = (Platform == "swift") ?
                          PlatformAgnosticAvailabilityKind::SwiftVersionSpecific :
                          PlatformAgnosticAvailabilityKind::PackageDescriptionVersionSpecific;
-  }
-
-  if (!PlatformKind.has_value() && Platform == "_embedded") {
-    PlatformKind = PlatformKind::none;
-    PlatformAgnostic = PlatformAgnosticAvailabilityKind::NoEmbedded;
   }
 
 

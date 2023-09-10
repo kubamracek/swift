@@ -32,7 +32,6 @@ StringRef getDomain(const AvailableAttr &AvAttr) {
     case PlatformAgnosticAvailabilityKind::Unavailable:
     case PlatformAgnosticAvailabilityKind::None:
     case PlatformAgnosticAvailabilityKind::NoAsync:
-    case PlatformAgnosticAvailabilityKind::NoEmbedded:
       break;
   }
 

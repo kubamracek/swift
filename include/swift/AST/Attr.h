@@ -642,8 +642,6 @@ enum class PlatformAgnosticAvailabilityKind {
   Unavailable,
   /// The declaration is unavailable from asynchronous contexts
   NoAsync,
-  /// The declaration is unavailable in embedded Swift
-  NoEmbedded,
 };
 
 /// Defines the @available attribute.

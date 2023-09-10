@@ -422,8 +422,6 @@ public:
         DiagName = "target environment"; break;
       case PlatformConditionKind::PtrAuth:
         DiagName = "pointer authentication scheme"; break;
-      case PlatformConditionKind::Mode:
-        DiagName = "compilation mode"; break;
       case PlatformConditionKind::Runtime:
         llvm_unreachable("handled above");
       }

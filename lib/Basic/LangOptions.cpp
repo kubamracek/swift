@@ -107,11 +107,6 @@ static const SupportedConditionalValue SupportedConditionalCompilationPtrAuthSch
   "_arm64e",
 };
 
-static const SupportedConditionalValue SupportedConditionalCompilationModes[] = {
-  "_Normal",
-  "_Embedded",
-};
-
 static const PlatformConditionKind AllPublicPlatformConditionKinds[] = {
 #define PLATFORM_CONDITION(LABEL, IDENTIFIER) PlatformConditionKind::LABEL,
 #define PLATFORM_CONDITION_(LABEL, IDENTIFIER)
@@ -136,8 +131,6 @@ ArrayRef<SupportedConditionalValue> getSupportedConditionalCompilationValues(con
     return SupportedConditionalCompilationTargetEnvironments;
   case PlatformConditionKind::PtrAuth:
     return SupportedConditionalCompilationPtrAuthSchemes;
-  case PlatformConditionKind::Mode:
-    return SupportedConditionalCompilationModes;
   }
   llvm_unreachable("Unhandled PlatformConditionKind in switch");
 }
@@ -201,7 +194,6 @@ checkPlatformConditionSupported(PlatformConditionKind Kind, StringRef Value,
   case PlatformConditionKind::Runtime:
   case PlatformConditionKind::TargetEnvironment:
   case PlatformConditionKind::PtrAuth:
-  case PlatformConditionKind::Mode:
     return isMatching(Kind, Value, suggestedKind, suggestedValues);
   case PlatformConditionKind::CanImport:
     // All importable names are valid.
@@ -428,11 +420,6 @@ std::pair<bool, bool> LangOptions::setTarget(llvm::Triple triple) {
   // Set the "runtime" platform condition.
   addPlatformConditionValue(PlatformConditionKind::Runtime,
                             EnableObjCInterop ? "_ObjC" : "_Native");
-
-  // Set the "mode" condition.
-  addPlatformConditionValue(
-      PlatformConditionKind::Mode,
-      hasFeature(Feature::Embedded) ? "_Embedded" : "_Normal");
 
   // Set the pointer authentication scheme.
   if (Target.getArchName() == "arm64e") {
