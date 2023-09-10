@@ -207,7 +207,7 @@ extension OpaquePointer: Hashable {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension OpaquePointer: CustomDebugStringConvertible {
   /// A textual representation of the pointer, suitable for debugging.
   public var debugDescription: String {
@@ -265,7 +265,7 @@ public struct CVaListPointer {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension CVaListPointer: CustomDebugStringConvertible {
   public var debugDescription: String {
     #if _mode(_Normal)
@@ -294,7 +294,7 @@ public struct CVaListPointer {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension CVaListPointer: CustomDebugStringConvertible {
   /// A textual representation of the pointer, suitable for debugging.
   public var debugDescription: String {

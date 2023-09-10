@@ -38,7 +38,7 @@
 ///     fails. The default is the line number where `assert(_:_:file:line:)`
 ///     is called.
 @_transparent
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func assert(
   _ condition: @autoclosure () -> Bool,
   _ message: @autoclosure () -> String = String(),
@@ -81,7 +81,7 @@ public func assert(
 ///     fails. The default is the line number where
 ///     `precondition(_:_:file:line:)` is called.
 @_transparent
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func precondition(
   _ condition: @autoclosure () -> Bool,
   _ message: @autoclosure () -> String = String(),
@@ -123,7 +123,7 @@ public func precondition(
 ///     line number where `assertionFailure(_:file:line:)` is called.
 @inlinable
 @inline(__always)
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func assertionFailure(
   _ message: @autoclosure () -> String = String(),
   file: StaticString = #file, line: UInt = #line
@@ -166,7 +166,7 @@ public func assertionFailure(
 ///     line number where `preconditionFailure(_:file:line:)` is called.
 #if _mode(_Normal)
 @_transparent
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func preconditionFailure(
   _ message: @autoclosure () -> String = String(),
   file: StaticString = #file, line: UInt = #line
@@ -209,7 +209,7 @@ public func preconditionFailure(
 ///     line number where `fatalError(_:file:line:)` is called.
 #if _mode(_Normal)
 @_transparent
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func fatalError(
   _ message: @autoclosure () -> String = String(),
   file: StaticString = #file, line: UInt = #line
@@ -366,7 +366,7 @@ internal func _internalInvariant_5_1(
 /// **and** the current executable was built with a Swift Standard Library
 /// version equal to or greater than the supplied version.
 @_transparent
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 internal func _precondition(
   ifLinkedOnOrAfter version: _SwiftStdlibVersion,
   _ condition: @autoclosure () -> Bool,

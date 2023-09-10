@@ -1137,7 +1137,7 @@ extension ArraySlice: CustomReflectable {
 }
 #endif
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension ArraySlice: CustomStringConvertible, CustomDebugStringConvertible {
   /// A textual representation of the array and its elements.
   public var description: String {
@@ -1154,7 +1154,7 @@ extension ArraySlice: CustomStringConvertible, CustomDebugStringConvertible {
 extension ArraySlice {
   #if _mode(_Embedded)
   @usableFromInline @_transparent
-  @available(_embedded, unavailable)
+  @_unavailableInEmbedded
   internal func _cPointerArgs() -> (Builtin.NativeObject?, UnsafeRawPointer?) {
     let p = _baseAddressIfContiguous
     if _fastPath(p != nil || isEmpty) {

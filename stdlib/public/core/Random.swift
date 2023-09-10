@@ -51,7 +51,7 @@ import SwiftShims
 ///
 /// Types that conform to `RandomNumberGenerator` should specifically document
 /// the thread safety and quality of the generator.
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol RandomNumberGenerator {
   /// Returns a value from a uniform, independent distribution of binary data.
   ///
@@ -64,7 +64,7 @@ public protocol RandomNumberGenerator {
   mutating func next() -> UInt64
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension RandomNumberGenerator {
   
   // An unavailable default implementation of next() prevents types that do
@@ -149,7 +149,7 @@ extension RandomNumberGenerator {
 ///   from `/dev/urandom`.
 /// - Windows uses `BCryptGenRandom`.
 @frozen
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public struct SystemRandomNumberGenerator: RandomNumberGenerator, Sendable {
   /// Creates a new instance of the system's default random number generator.
   @inlinable

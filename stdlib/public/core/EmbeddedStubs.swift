@@ -14,25 +14,25 @@ import SwiftShims
 
 /// String
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public struct String: Hashable { 
     public var utf8CString: ContiguousArray<CChar> { fatalError() }
     public init() {}
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String {
   public init<Subject>(describing instance: Subject) { fatalError() }
   public init<Subject>(reflecting instance: Subject) { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String {
   public static func + (lhs: String, rhs: String) -> String { fatalError() }
   public static func += (lhs: inout String, rhs: String) { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String {
   public var isContiguousUTF8: Bool { fatalError() }
   public mutating func makeContiguousUTF8() { fatalError() }
@@ -42,50 +42,50 @@ extension String {
   public var debugDescription: String { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func debugPrint(_ items: Any..., separator: String = " ", terminator: String = "\n") { fatalError() }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public func debugPrint<Target: TextOutputStream>(_ items: Any..., separator: String = " ", terminator: String = "\n", to output: inout Target) { fatalError() }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String: TextOutputStream {
   public mutating func write(_ other: String) { fatalError() }
   public mutating func _writeASCII(_ buffer: UnsafeBufferPointer<UInt8>) { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String: _ExpressibleByBuiltinUnicodeScalarLiteral {
   public init(_builtinUnicodeScalarLiteral value: Builtin.Int32) { fatalError() }
   public init(_ scalar: UInt32) { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String: _ExpressibleByBuiltinExtendedGraphemeClusterLiteral {
   public init(_builtinExtendedGraphemeClusterLiteral start: Builtin.RawPointer, utf8CodeUnitCount: Builtin.Word, isASCII: Builtin.Int1) { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String: _ExpressibleByBuiltinStringLiteral {
   public init(_builtinStringLiteral start: Builtin.RawPointer, utf8CodeUnitCount: Builtin.Word, isASCII: Builtin.Int1) { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String: ExpressibleByStringLiteral {
   public init(stringLiteral value: String) { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol CustomStringConvertible {
  var description: String { get }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol CustomDebugStringConvertible {
   var debugDescription: String { get }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public struct DefaultStringInterpolation: StringInterpolationProtocol, Sendable {
   public typealias StringLiteralType = String
 
@@ -96,19 +96,19 @@ public struct DefaultStringInterpolation: StringInterpolationProtocol, Sendable 
   internal __consuming func make() -> String { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String {
   @inlinable
   @_effects(readonly)
   public init(stringInterpolation: DefaultStringInterpolation) { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol LosslessStringConvertible: CustomStringConvertible {
   init?(_ description: String)
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol TextOutputStream {
   mutating func _lock()
   mutating func _unlock()
@@ -116,24 +116,24 @@ public protocol TextOutputStream {
   mutating func _writeASCII(_ buffer: UnsafeBufferPointer<UInt8>)
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension TextOutputStream {
   public mutating func _lock() {}
   public mutating func _unlock() {}
   public mutating func _writeASCII(_ buffer: UnsafeBufferPointer<UInt8>) {}
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol TextOutputStreamable {
   func write<Target: TextOutputStream>(to target: inout Target)
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String {
   internal static func _fromUTF8Repairing(_ input: UnsafeBufferPointer<UInt8>) -> (result: String, repairsMade: Bool) { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String {
   internal static func _fromASCII(_ input: UnsafeBufferPointer<UInt8>) -> String { fatalError() }
   internal static func _uncheckedFromUTF8( _ input: UnsafeBufferPointer<UInt8>) -> String { fatalError() }
@@ -141,7 +141,7 @@ extension String {
   internal static func _uncheckedFromUTF8(_ input: UnsafeBufferPointer<UInt8>, asciiPreScanResult: Bool) -> String { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension String {
   public init<T: BinaryInteger>(_ value: T, radix: Int = 10, uppercase: Bool = false) { fatalError() }
 }
@@ -183,9 +183,9 @@ extension Unicode.Scalar : _ExpressibleByBuiltinUnicodeScalarLiteral, Expressibl
   public init(_ v: Unicode.Scalar) {
     self = v
   }
-  @available(_embedded, unavailable)
+  @_unavailableInEmbedded
   public func escaped(asASCII forceASCII: Bool) -> String { fatalError() }
-  @available(_embedded, unavailable)
+  @_unavailableInEmbedded
   internal func _escaped(asASCII forceASCII: Bool) -> String? { fatalError() }
   public var isASCII: Bool {
     return value <= 127
@@ -220,45 +220,45 @@ extension Unicode.UTF8 {
 
 /// Codable
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol Encodable {
   func encode(to encoder: any Encoder) throws
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol Decodable {
   init(from decoder: any Decoder) throws
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public typealias Codable = Encodable & Decodable
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol CodingKey { }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public struct KeyedDecodingContainer<K: CodingKey> { }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public struct KeyedEncodingContainer<K: CodingKey> { }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol UnkeyedDecodingContainer { 
   mutating func decode<T>(_ type: T.Type) throws -> T
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol UnkeyedEncodingContainer { 
   mutating func encode<T>(_ value: T) throws
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol SingleValueDecodingContainer { }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol SingleValueEncodingContainer { }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol Encoder {
   var codingPath: [any CodingKey] { get }
   func container<Key>(keyedBy type: Key.Type) -> KeyedEncodingContainer<Key>
@@ -266,7 +266,7 @@ public protocol Encoder {
   func singleValueContainer() -> any SingleValueEncodingContainer
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public protocol Decoder {
   var codingPath: [any CodingKey] { get }
   func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key>
@@ -274,7 +274,7 @@ public protocol Decoder {
   func singleValueContainer() throws -> any SingleValueDecodingContainer
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public enum DecodingError: Error {
   public struct Context: Sendable {
     public init(codingPath: [any CodingKey], debugDescription: String, underlyingError: Error? = nil) { fatalError() }
@@ -287,17 +287,17 @@ public enum DecodingError: Error {
 
 /// KeyPath
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public class AnyKeyPath {
   @usableFromInline
   internal var _storedInlineOffset: Int? { fatalError() }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public class PartialKeyPath<Root>: AnyKeyPath { }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public class KeyPath<Root, Value>: PartialKeyPath<Root> { }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public class WritableKeyPath<Root, Value>: KeyPath<Root, Value> { }

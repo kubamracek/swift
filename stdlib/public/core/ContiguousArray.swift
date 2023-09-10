@@ -1045,7 +1045,7 @@ extension ContiguousArray: CustomReflectable {
 }
 #endif
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension ContiguousArray: CustomStringConvertible, CustomDebugStringConvertible {
   /// A textual representation of the array and its elements.
   public var description: String {
@@ -1062,7 +1062,7 @@ extension ContiguousArray: CustomStringConvertible, CustomDebugStringConvertible
 extension ContiguousArray {
   #if _mode(_Embedded)
   @usableFromInline @_transparent
-  @available(_embedded, unavailable)
+  @_unavailableInEmbedded
   internal func _cPointerArgs() -> (Builtin.NativeObject?, UnsafeRawPointer?) {
     let p = _baseAddressIfContiguous
     if _fastPath(p != nil || isEmpty) {

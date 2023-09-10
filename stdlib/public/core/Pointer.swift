@@ -309,7 +309,7 @@ extension _Pointer /*: Hashable */ {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension _Pointer /*: CustomDebugStringConvertible */ {
   /// A textual representation of the pointer, suitable for debugging.
   public var debugDescription: String {
@@ -421,7 +421,7 @@ func _convertInOutToPointerArgument<
 /// storage.
 #if _mode(_Embedded)
 @_transparent
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public // COMPILER_INTRINSIC
 func _convertConstArrayToPointerArgument<
   FromElement,
@@ -441,7 +441,7 @@ func _convertConstArrayToPointerArgument<
 }
 #else
 @_transparent
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public // COMPILER_INTRINSIC
 func _convertConstArrayToPointerArgument<
   FromElement,
@@ -466,7 +466,7 @@ func _convertConstArrayToPointerArgument<
 /// This always produces a non-null pointer, even if the array's length is 0.
 #if _mode(_Embedded)
 @_transparent
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public // COMPILER_INTRINSIC
 func _convertMutableArrayToPointerArgument<
   FromElement,
@@ -483,7 +483,7 @@ func _convertMutableArrayToPointerArgument<
 }
 #else
 @_transparent
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public // COMPILER_INTRINSIC
 func _convertMutableArrayToPointerArgument<
   FromElement,
@@ -503,7 +503,7 @@ func _convertMutableArrayToPointerArgument<
 /// Derive a UTF-8 pointer argument from a value string parameter.
 #if _mode(_Embedded)
 @_transparent
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public // COMPILER_INTRINSIC
 func _convertConstStringToUTF8PointerArgument<
   ToPointer: _Pointer
@@ -513,7 +513,7 @@ func _convertConstStringToUTF8PointerArgument<
 }
 #else
 @_transparent
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public // COMPILER_INTRINSIC
 func _convertConstStringToUTF8PointerArgument<
   ToPointer: _Pointer

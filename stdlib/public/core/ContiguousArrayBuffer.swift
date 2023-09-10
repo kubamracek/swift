@@ -57,7 +57,7 @@ internal final class __EmptyArrayStorage
 
   /// A type that every element in the array is.
   @inlinable
-  @available(_embedded, unavailable)
+  @_unavailableInEmbedded
   override internal var staticElementType: Any.Type {
     return Void.self
   }
@@ -241,7 +241,7 @@ internal final class _ContiguousArrayStorage<
 
   /// A type that every element in the array is.
   @inlinable
-  @available(_embedded, unavailable)
+  @_unavailableInEmbedded
   internal override var staticElementType: Any.Type {
     return Element.self
   }
@@ -892,7 +892,7 @@ internal struct _ContiguousArrayBuffer<Element>: _ArrayBufferProtocol {
   ///
   /// - Complexity: O(*n*)
   @inlinable
-  @available(_embedded, unavailable)
+  @_unavailableInEmbedded
   internal func storesOnlyElementsOfType<U>(
     _: U.Type
   ) -> Bool {

@@ -161,6 +161,7 @@ set(SWIFTLIB_ESSENTIAL
   Hasher.swift
   Hashing.swift
   HashTable.swift
+  Identifiable.swift
   Indices.swift
   InputStream.swift
   IntegerParsing.swift

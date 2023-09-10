@@ -123,7 +123,7 @@ internal func _assertionFailure(
 @usableFromInline
 @inline(never)
 @_semantics("programtermination_point")
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 internal func _assertionFailure(
   _ prefix: StaticString, _ message: String,
   file: StaticString, line: UInt,
@@ -156,7 +156,7 @@ internal func _assertionFailure(
 @usableFromInline
 @inline(never)
 @_semantics("programtermination_point")
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 internal func _assertionFailure(
   _ prefix: StaticString, _ message: String,
   flags: UInt32
@@ -251,7 +251,7 @@ func _unimplementedInitializer(className: StaticString,
   Builtin.int_trap()
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public // COMPILER_INTRINSIC
 func _undefined<T>(
   _ message: @autoclosure () -> String = String(),

@@ -1476,7 +1476,7 @@ extension Array: CustomReflectable {
 }
 #endif
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension Array: CustomStringConvertible, CustomDebugStringConvertible {
   /// A textual representation of the array and its elements.
   public var description: String {
@@ -1494,7 +1494,7 @@ extension Array: CustomStringConvertible, CustomDebugStringConvertible {
 extension Array {
   #if _mode(_Normal)
   @usableFromInline @_transparent
-  @available(_embedded, unavailable)
+  @_unavailableInEmbedded
   internal func _cPointerArgs() -> (AnyObject?, UnsafeRawPointer?) {
     let p = _baseAddressIfContiguous
     if _fastPath(p != nil || isEmpty) {
@@ -1505,7 +1505,7 @@ extension Array {
   }
   #else
   @usableFromInline @_transparent
-  @available(_embedded, unavailable)
+  @_unavailableInEmbedded
   internal func _cPointerArgs() -> (Builtin.NativeObject?, UnsafeRawPointer?) {
     let p = _baseAddressIfContiguous
     if _fastPath(p != nil || isEmpty) {
@@ -1985,7 +1985,7 @@ extension Array {
 }
 #endif
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension Array: _HasCustomAnyHashableRepresentation
   where Element: Hashable {
   public __consuming func _toCustomAnyHashable() -> AnyHashable? {
@@ -1993,13 +1993,13 @@ extension Array: _HasCustomAnyHashableRepresentation
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 internal protocol _ArrayAnyHashableProtocol: _AnyHashableBox {
   var count: Int { get }
   subscript(index: Int) -> AnyHashable { get }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 internal struct _ArrayAnyHashableBox<Element: Hashable>
   : _ArrayAnyHashableProtocol {
   internal let _value: [Element]

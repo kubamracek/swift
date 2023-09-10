@@ -1500,7 +1500,7 @@ extension BinaryInteger {
 //===--- CustomStringConvertible conformance ------------------------------===//
 //===----------------------------------------------------------------------===//
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension BinaryInteger {
   internal func _description(radix: Int, uppercase: Bool) -> String {
     _precondition(2...36 ~= radix, "Radix must be between 2 and 36")
@@ -2624,7 +2624,7 @@ extension FixedWidthInteger {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension FixedWidthInteger {
   /// Returns a random value within the specified range, using the given
   /// generator as a source for randomness.
@@ -3352,7 +3352,7 @@ extension FixedWidthInteger {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension FixedWidthInteger {
   @inlinable
   public static func _random<R: RandomNumberGenerator>(

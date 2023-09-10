@@ -1361,7 +1361,7 @@ extension AnySequence {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension AnyCollection {
   /// Returns an iterator over the elements of this collection.
   @inline(__always)
@@ -1450,7 +1450,7 @@ extension AnyCollection {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension AnyBidirectionalCollection {
   /// Returns an iterator over the elements of this collection.
   @inline(__always)
@@ -1545,7 +1545,7 @@ extension AnyBidirectionalCollection {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension AnyRandomAccessCollection {
   /// Returns an iterator over the elements of this collection.
   @inline(__always)
@@ -1693,7 +1693,7 @@ internal final class _IndexBox<BaseIndex: Comparable>: _AnyIndexBox {
 
 /// A wrapper over an underlying index that hides the specific underlying type.
 @frozen
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public struct AnyIndex {
   @usableFromInline
   internal var _box: _AnyIndexBox
@@ -1715,7 +1715,7 @@ public struct AnyIndex {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension AnyIndex: Comparable {
   /// Returns a Boolean value indicating whether two indices wrap equal
   /// underlying indices.
@@ -1763,7 +1763,7 @@ protocol _AnyCollectionProtocol: Collection {
 /// same `Element` type, hiding the specifics of the underlying
 /// collection.
 @frozen
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public struct AnyCollection<Element> {
   @usableFromInline
   internal let _box: _AnyCollectionBox<Element>
@@ -1774,7 +1774,7 @@ public struct AnyCollection<Element> {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension AnyCollection: Collection {
   public typealias Indices = DefaultIndices<AnyCollection>
   public typealias Iterator = AnyIterator<Element>
@@ -1966,7 +1966,7 @@ extension AnyCollection: Collection {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension AnyCollection: _AnyCollectionProtocol {
   /// Uniquely identifies the stored underlying collection.
   @inlinable
@@ -1983,7 +1983,7 @@ extension AnyCollection: _AnyCollectionProtocol {
 /// same `Element` type, hiding the specifics of the underlying
 /// collection.
 @frozen
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public struct AnyBidirectionalCollection<Element> {
   @usableFromInline
   internal let _box: _AnyBidirectionalCollectionBox<Element>
@@ -1994,7 +1994,7 @@ public struct AnyBidirectionalCollection<Element> {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension AnyBidirectionalCollection: BidirectionalCollection {
   public typealias Indices = DefaultIndices<AnyBidirectionalCollection>
   public typealias Iterator = AnyIterator<Element>
@@ -2194,7 +2194,7 @@ extension AnyBidirectionalCollection: BidirectionalCollection {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension AnyBidirectionalCollection: _AnyCollectionProtocol {
   /// Uniquely identifies the stored underlying collection.
   @inlinable
@@ -2211,7 +2211,7 @@ extension AnyBidirectionalCollection: _AnyCollectionProtocol {
 /// same `Element` type, hiding the specifics of the underlying
 /// collection.
 @frozen
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 public struct AnyRandomAccessCollection<Element> {
   @usableFromInline
   internal let _box: _AnyRandomAccessCollectionBox<Element>
@@ -2222,7 +2222,7 @@ public struct AnyRandomAccessCollection<Element> {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension AnyRandomAccessCollection: RandomAccessCollection {
   public typealias Indices = DefaultIndices<AnyRandomAccessCollection>
   public typealias Iterator = AnyIterator<Element>
@@ -2411,7 +2411,7 @@ extension AnyRandomAccessCollection: RandomAccessCollection {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension AnyRandomAccessCollection: _AnyCollectionProtocol {
   /// Uniquely identifies the stored underlying collection.
   @inlinable

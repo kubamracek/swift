@@ -94,7 +94,7 @@ func _finalizeUninitializedArray<Element>(
 }
 #endif
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension Collection {  
   // Utility method for collections that wish to implement
   // CustomStringConvertible and CustomDebugStringConvertible using a bracketed

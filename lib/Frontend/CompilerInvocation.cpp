@@ -1319,6 +1319,15 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
   }
   Opts.BypassResilienceChecks |= Args.hasArg(OPT_bypass_resilience);
 
+  if (Opts.hasFeature(Feature::Embedded)) {
+    Opts.UnavailableDeclOptimizationMode = UnavailableDeclOptimization::Complete;
+
+    if (FrontendOpts.EnableLibraryEvolution) {
+      Diags.diagnose(SourceLoc(), diag::evolution_with_embedded);
+      HadError = true;
+    }
+  }
+
   if (FrontendOpts.EnableLibraryEvolution && Opts.hasFeature(Feature::Embedded)) {
     Diags.diagnose(SourceLoc(), diag::evolution_with_embedded);
     HadError = true;

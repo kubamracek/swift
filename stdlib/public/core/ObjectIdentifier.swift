@@ -64,7 +64,7 @@ public struct ObjectIdentifier: Sendable {
   }
 }
 
-@available(_embedded, unavailable)
+@_unavailableInEmbedded
 extension ObjectIdentifier: CustomDebugStringConvertible {
   /// A textual representation of the identifier, suitable for debugging.
   public var debugDescription: String {
