@@ -138,6 +138,7 @@ if(SWIFT_BUILD_STDLIB)
   # These must be kept in dependency order so that any referenced targets
   # exist at the time we look for them in add_swift_*.
   add_subdirectory(runtime)
+  add_subdirectory(runtimeEmbedded)
   add_subdirectory(stubs)
   add_subdirectory(core)
   add_subdirectory(SwiftOnoneSupport)
