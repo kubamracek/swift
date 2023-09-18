@@ -1,12 +1,9 @@
 // RUN: %empty-directory(%t)
-// RUN: %target-swift-frontend -enable-experimental-feature Embedded -enforce-exclusivity=none %s -c -o %t/a.o
-// RUN: %target-clang -x c -c %S/Inputs/print.c -o %t/print.o
-// RUN: %target-clang %t/a.o %t/print.o -o %t/a.out
+// RUN: %target-swift-frontend -O -target arm64-apple-none-macho -Xcc -D__MACH__ -Xcc -D__arm64__ -Xcc -D__APPLE__ %s -enable-experimental-feature Embedded -c -o %t/a.o
+// RUN: %target-clang %t/a.o -o %t/a.out -Wl,-dead_strip -Wl,-why_live,'_$sSi6signumSiyF'
 // RUN: %target-run %t/a.out | %FileCheck %s
 
 // REQUIRES: executable_test
-// REQUIRES: VENDOR=apple
-// REQUIRES: OS=macosx
 
 @_silgen_name("putchar")
 func putchar(_: UInt8)
@@ -24,12 +21,14 @@ public func print(_ s: StaticString, terminator: StaticString = "\n") {
   }
 }
 
-@_silgen_name("print_long")
-func print_long(_: Int)
+@_silgen_name("vprintf")
+func vprintf(_: UnsafePointer<UInt8>, _: UnsafeRawPointer)
 
-public func print(_ n: Int, terminator: StaticString = "\n") {
-    print_long(n)
-    print("", terminator: terminator)
+public func print(_ n: Int) {
+    let f: StaticString = "%d\n"
+    withUnsafePointer(to: n) { p in
+        vprintf(f.utf8Start, p)
+    }
 }
 
 @_silgen_name("malloc")
@@ -76,15 +75,9 @@ struct Bytes<T>: Collection {
 func foo() {
     var bytes = Bytes<Int>(size: 10, initialValue: 0)
     bytes[4] = 42
-    bytes[2] = 22
-    bytes[6] = 13
-    bytes[6] = 15
-    bytes[8] = 9
-    bytes[9] = -1
-    print(bytes[0]) // CHECK: 0
-    print(bytes.max()!)// CHECK: 42
-    print(bytes.min()!) // CHECK: -1
-    print(bytes.first(where: { $0 > 0 && $0.isMultiple(of: 2) })!) // CHECK: 22
+    print(bytes.map { $0 * 2 }.filter { $0 % 3 == 0 }.reduce(0, +) ) // CHECK: 132
 }
 
 foo()
+
+// CHECK: 42

@@ -46,6 +46,7 @@ class VTableSpecializer : public SILModuleTransform {
     if (!module.getASTContext().LangOpts.hasFeature(Feature::Embedded)) return;
 
     LLVM_DEBUG(llvm::dbgs() << "***** VTableSpecializer\n");
+    LLVM_DEBUG(llvm::errs() << module);
 
     if (specializeVTables(module)) invalidateFunctionTables();
   }

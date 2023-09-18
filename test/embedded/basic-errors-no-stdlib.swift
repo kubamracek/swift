@@ -1,4 +1,4 @@
-// RUN: %target-swift-frontend -emit-ir -verify %s -parse-stdlib -enable-experimental-feature Embedded -wmo
+// RUN: %target-swift-frontend -emit-ir -verify %s -parse-stdlib -enable-experimental-feature Embedded
 
 public protocol Player {}
 struct Concrete: Player {}

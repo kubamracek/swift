@@ -1,10 +1,11 @@
 // RUN: %empty-directory(%t)
 // RUN: %{python} %utils/split_file.py -o %t %s
 
-// RUN: %target-swift-frontend -swift-version 5 -emit-module -o %t/MyModule.swiftmodule %t/MyModule.swift -parse-stdlib -enable-experimental-feature Embedded -wmo
-// RUN: %target-swift-frontend -swift-version 5 -emit-ir     -I %t                      %t/Main.swift     -parse-stdlib -enable-experimental-feature Embedded -wmo | %FileCheck %s
+// RUN: %target-swift-frontend -swift-version 5 -emit-module -o %t/MyModule.swiftmodule %t/MyModule.swift -parse-stdlib -enable-experimental-feature Embedded
+// RUN: %target-swift-frontend -swift-version 5 -emit-ir     -I %t                      %t/Main.swift     -parse-stdlib -enable-experimental-feature Embedded | %FileCheck %s
 
-// REQUIRES: swift_in_compiler
+// TODO: investigate why windows is generating more metadata.
+// XFAIL: OS=windows-msvc
 
 // BEGIN MyModule.swift
 

@@ -1,7 +1,7 @@
 // RUN: %target-swift-emit-ir %s -parse-stdlib | %FileCheck %s
 // RUN: %target-swift-emit-ir %s -parse-stdlib -enable-experimental-feature Embedded | %FileCheck %s --check-prefix EMBEDDED
 
-#if $Embedded
+#if _mode(_Embedded)
 public func embedded() { }
 #else
 public func regular() { }
