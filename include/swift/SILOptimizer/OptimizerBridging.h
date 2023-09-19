@@ -246,7 +246,9 @@ struct BridgedPassContext {
   SWIFT_IMPORT_UNSAFE
   OptionalBridgedValue constantFoldBuiltin(BridgedInstruction builtin) const;
 
-  bool specializeVTables(BridgedFunction function) const;
+  swift::SILVTable *specializeVTableForType(swift::SILType type, BridgedFunction function) const;
+
+  bool specializeClassMethodInst(BridgedInstruction cm) const;
 
   bool specializeAppliesInFunction(BridgedFunction function, bool isMandatory) const;
 
