@@ -1702,9 +1702,9 @@ extension Collection {
       } else {
         result += ", "
       }
-      debugPrint(k, terminator: "", to: &result)
+      "(cannot print in embedded)".write(to: &result)
       result += ": "
-      debugPrint(v, terminator: "", to: &result)
+      "(cannot print in embedded)".write(to: &result)
     }
     result += "]"
     return result

@@ -176,7 +176,6 @@ func _stdlib_atomicLoadARCRef(
 @_transparent
 @_alwaysEmitIntoClient
 @discardableResult
-@_unavailableInEmbedded
 public func _stdlib_atomicAcquiringInitializeARCRef<T: AnyObject>(
   object target: UnsafeMutablePointer<T?>,
   desired: __owned T
@@ -203,7 +202,6 @@ public func _stdlib_atomicAcquiringInitializeARCRef<T: AnyObject>(
 
 @_alwaysEmitIntoClient
 @_transparent
-@_unavailableInEmbedded
 public func _stdlib_atomicAcquiringLoadARCRef<T: AnyObject>(
   object target: UnsafeMutablePointer<T?>
 ) -> Unmanaged<T>? {
@@ -370,7 +368,6 @@ internal func _float16ToStringImpl(
 ) -> Int
 
 @available(SwiftStdlib 5.3, *)
-@_unavailableInEmbedded
 internal func _float16ToString(
   _ value: Float16,
   debug: Bool
@@ -396,7 +393,6 @@ internal func _float32ToStringImpl(
   _ debug: Bool
 ) -> UInt64
 
-@_unavailableInEmbedded
 internal func _float32ToString(
   _ value: Float32,
   debug: Bool
@@ -421,7 +417,6 @@ internal func _float64ToStringImpl(
   _ debug: Bool
 ) -> UInt64
 
-@_unavailableInEmbedded
 internal func _float64ToString(
   _ value: Float64,
   debug: Bool
@@ -449,7 +444,6 @@ internal func _float80ToStringImpl(
   _ debug: Bool
 ) -> UInt64
 
-@_unavailableInEmbedded
 internal func _float80ToString(
   _ value: Float80,
   debug: Bool
@@ -463,6 +457,7 @@ internal func _float80ToString(
 }
 #endif
 
+#if !$Embedded
 // Returns a UInt64, but that value is the length of the string, so it's
 // guaranteed to fit into an Int. This is part of the ABI, so we can't
 // trivially change it to Int. Callers can safely convert the result
@@ -475,8 +470,52 @@ internal func _int64ToStringImpl(
   _ radix: Int64,
   _ uppercase: Bool
 ) -> UInt64
+#else
+internal func _int64ToStringImpl(
+  _ buffer: UnsafeMutablePointer<UTF8.CodeUnit>,
+  _ bufferLength: UInt,
+  _ value: Int64,
+  _ radix: Int64,
+  _ uppercase: Bool
+) -> UInt64 {
+  if value == 0 {
+    putchar(CInt(("0" as Unicode.Scalar).value))
+    return 1
+  }
+  
+  func _ascii(_ digit: UInt8) -> UTF8.CodeUnit {
+    if digit < 10 {
+      UInt8(("0" as Unicode.Scalar).value) + digit
+    } else {
+      UInt8(("a" as Unicode.Scalar).value) + (digit - 10)
+    }
+  }
+  let isNegative = value < 0
+  var value = value.magnitude
+  
+  var index = Int(bufferLength - 1)
+  while value != 0 {
+    let (quotient, remainder) = value.quotientAndRemainder(dividingBy: UInt64(radix))
+    buffer[index] = _ascii(UInt8(truncatingIfNeeded: remainder))
+    index -= 1
+    value = quotient
+  }
+  if isNegative {
+    buffer[index] = UInt8(("-" as Unicode.Scalar).value)
+    index -= 1
+  }
+  let start = index + 1
+  let end = Int(bufferLength - 1)
+  let count = end - start + 1
+  
+  let intermediate = UnsafeBufferPointer(start: buffer.advanced(by: start), count: count)
+  let destination = UnsafeMutableRawBufferPointer(start: buffer, count: Int(bufferLength))
+  destination.copyMemory(from: UnsafeRawBufferPointer(intermediate))
+  
+  return UInt64(count)
+}
+#endif
 
-@_unavailableInEmbedded
 internal func _int64ToString(
   _ value: Int64,
   radix: Int64 = 10,
@@ -501,6 +540,7 @@ internal func _int64ToString(
   }
 }
 
+#if !$Embedded
 // Returns a UInt64, but that value is the length of the string, so it's
 // guaranteed to fit into an Int. This is part of the ABI, so we can't
 // trivially change it to Int. Callers can safely convert the result
@@ -513,8 +553,52 @@ internal func _uint64ToStringImpl(
   _ radix: Int64,
   _ uppercase: Bool
 ) -> UInt64
+#else
+internal func _uint64ToStringImpl(
+  _ buffer: UnsafeMutablePointer<UTF8.CodeUnit>,
+  _ bufferLength: UInt,
+  _ value: UInt64,
+  _ radix: Int64,
+  _ uppercase: Bool
+) -> UInt64 {
+  if value == 0 {
+    putchar(CInt(("0" as Unicode.Scalar).value))
+    return 1
+  }
+  
+  func _ascii(_ digit: UInt8) -> UTF8.CodeUnit {
+    if digit < 10 {
+      UInt8(("0" as Unicode.Scalar).value) + digit
+    } else {
+      UInt8(("a" as Unicode.Scalar).value) + (digit - 10)
+    }
+  }
+  let isNegative = false // XXX
+  var value = value.magnitude
+  
+  var index = Int(bufferLength - 1)
+  while value != 0 {
+    let (quotient, remainder) = value.quotientAndRemainder(dividingBy: UInt64(radix))
+    buffer[index] = _ascii(UInt8(truncatingIfNeeded: remainder))
+    index -= 1
+    value = quotient
+  }
+  if isNegative {
+    buffer[index] = UInt8(("-" as Unicode.Scalar).value)
+    index -= 1
+  }
+  let start = index + 1
+  let end = Int(bufferLength - 1)
+  let count = end - start + 1
+  
+  let intermediate = UnsafeBufferPointer(start: buffer.advanced(by: start), count: count)
+  let destination = UnsafeMutableRawBufferPointer(start: buffer, count: Int(bufferLength))
+  destination.copyMemory(from: UnsafeRawBufferPointer(intermediate))
+  
+  return UInt64(count)
+}
+#endif
 
-@_unavailableInEmbedded
 public // @testable
 func _uint64ToString(
     _ value: UInt64,
@@ -541,7 +625,6 @@ func _uint64ToString(
 }
 
 @inlinable
-@_unavailableInEmbedded
 internal func _rawPointerToString(_ value: Builtin.RawPointer) -> String {
   var result = _uint64ToString(
     UInt64(

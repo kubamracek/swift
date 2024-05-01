@@ -413,11 +413,15 @@ internal func _internalInvariant_5_1(
   // FIXME: The below won't run the assert on 5.1 stdlib if testing on older
   // OSes, which means that testing may not test the assertion. We need a real
   // solution to this.
+#if !$Embedded
   guard #available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *) //SwiftStdlib 5.1
   else { return }
+#endif
   _internalInvariant(condition(), message, file: file, line: line)
 #endif
 }
+
+#if !$Embedded
 
 /// Library precondition checks with a linked-on-or-after check, allowing the
 /// addition of new preconditions while maintaining compatibility with older
@@ -427,7 +431,6 @@ internal func _internalInvariant_5_1(
 /// **and** the current executable was built with a Swift Standard Library
 /// version equal to or greater than the supplied version.
 @_transparent
-@_unavailableInEmbedded
 internal func _precondition(
   ifLinkedOnOrAfter version: _SwiftStdlibVersion,
   _ condition: @autoclosure () -> Bool,
@@ -453,6 +456,27 @@ internal func _precondition(
   }
 }
 
+#else
+
+@_transparent
+internal func _precondition(
+  ifLinkedOnOrAfter version: _SwiftStdlibVersion,
+  _ condition: @autoclosure () -> Bool,
+  _ message: StaticString = StaticString(),
+  file: StaticString = #file, line: UInt = #line
+) {
+  if _isDebugAssertConfiguration() {
+    if _slowPath(!condition()) {
+      _assertionFailure("Fatal error", message, file: file, line: line,
+        flags: _fatalErrorFlags())
+    }
+  } else if _isReleaseAssertConfiguration() {
+    let error = (!condition())
+    Builtin.condfail_message(error._value, message.unsafeRawPointer)
+  }
+}
+
+#endif
 
 @usableFromInline @_transparent
 internal func _internalInvariantFailure(

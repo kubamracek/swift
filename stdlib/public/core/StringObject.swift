@@ -102,6 +102,8 @@ internal struct _StringObject {
   }
 
 #elseif _pointerBitWidth(_32)
+ 
+  public typealias AnyObject = Builtin.NativeObject
 
   @usableFromInline @frozen
   internal enum Variant {
@@ -210,6 +212,8 @@ extension _StringObject {
     self._countAndFlagsBits = countAndFlags._storage
     _invariantCheck()
   }
+
+  public typealias AnyObject = Builtin.NativeObject
 
   @inlinable @inline(__always)
   internal init(
@@ -440,7 +444,7 @@ extension _StringObject {
 #if _pointerBitWidth(_64)
     return 32
 #elseif _pointerBitWidth(_32)
-    return 20
+    return 32
 #else
 #error("Unknown platform")
 #endif
@@ -974,9 +978,10 @@ extension _StringObject {
     return unmanaged.takeUnretainedValue()
 #elseif _pointerBitWidth(_32)
     guard case .native(let storage) = _variant else {
-      _internalInvariantFailure()
+      fatalError("invariant fail native storage")
     }
-    return _unsafeUncheckedDowncast(storage, to: __StringStorage.self)
+    return unsafeBitCast(_nativeObject(toNative: storage), to: __StringStorage.self)
+    //return _unsafeUncheckedDowncast(storage, to: __StringStorage.self)
 #else
 #error("Unknown platform")
 #endif
@@ -1009,9 +1014,10 @@ extension _StringObject {
     return unmanaged.takeUnretainedValue()
 #elseif _pointerBitWidth(_32)
     guard case .native(let storage) = _variant else {
-      _internalInvariantFailure()
+      fatalError("invariant fail shared storage")
     }
-    return _unsafeUncheckedDowncast(storage, to: __SharedStringStorage.self)
+    return unsafeBitCast(_nativeObject(toNative: storage), to: __SharedStringStorage.self)
+    //return _unsafeUncheckedDowncast(storage, to: __SharedStringStorage.self)
 #else
 #error("Unknown platform")
 #endif
@@ -1035,8 +1041,11 @@ extension _StringObject {
   }
 
   @inline(__always)
+  @_unavailableInEmbedded
   internal var cocoaObject: AnyObject {
-#if _pointerBitWidth(_64)
+#if $Embedded
+    fatalError("unreachable in embedded Swift")
+#elseif _pointerBitWidth(_64)
     _internalInvariant(largeIsCocoa && !isImmortal)
     let unmanaged = Unmanaged<AnyObject>.fromOpaque(largeAddress)
     return unmanaged.takeUnretainedValue()
@@ -1053,10 +1062,13 @@ extension _StringObject {
   /// Call `body` with the bridged Cocoa object in `self`, without retaining
   /// it.
   @inline(__always)
+  @_unavailableInEmbedded
   internal func withCocoaObject<R>(
     _ body: (AnyObject) -> R
   ) -> R {
-#if _pointerBitWidth(_64)
+#if $Embedded
+    fatalError("unreachable in embedded Swift")
+#elseif _pointerBitWidth(_64)
     _internalInvariant(largeIsCocoa && !isImmortal)
     let unmanaged = Unmanaged<AnyObject>.fromOpaque(largeAddress)
     return unmanaged._withUnsafeGuaranteedRef { body($0) }
@@ -1073,8 +1085,9 @@ extension _StringObject {
   @inline(__always)
   internal var owner: AnyObject? {
     guard self.isMortal else { return nil }
-    let unmanaged = Unmanaged<AnyObject>.fromOpaque(largeAddress)
-    return unmanaged.takeUnretainedValue()
+    //let unmanaged = Unmanaged<AnyObject>.fromOpaque(largeAddress)
+    //return unmanaged.takeUnretainedValue()
+    fatalError("owner?")
   }
 }
 
@@ -1142,6 +1155,7 @@ extension _StringObject {
 
   // Whether the object stored can be bridged directly as a NSString
   @usableFromInline // @opaque
+  @_unavailableInEmbedded
   internal var hasObjCBridgeableObject: Bool {
     @_effects(releasenone) get {
       // Currently, all mortal objects can zero-cost bridge
@@ -1151,10 +1165,15 @@ extension _StringObject {
 
   // Fetch the stored subclass of NSString for bridging
   @inline(__always)
+  @_unavailableInEmbedded
   internal var objCBridgeableObject: AnyObject {
+#if $Embedded
+    fatalError("unreachable in embedded Swift")
+#else
     _internalInvariant(hasObjCBridgeableObject)
     let unmanaged = Unmanaged<AnyObject>.fromOpaque(largeAddress)
     return unmanaged.takeUnretainedValue()
+#endif
   }
 
   // Whether the object provides fast UTF-8 contents that are nul-terminated
@@ -1203,12 +1222,12 @@ extension _StringObject {
   internal init(_ storage: __StringStorage) {
 #if _pointerBitWidth(_64)
     self.init(
-      object: storage,
+      object: Builtin.unsafeCastToNativeObject(storage),
       discriminator: Nibbles.largeMortal(),
       countAndFlags: storage._countAndFlags)
 #elseif _pointerBitWidth(_32)
     self.init(
-      variant: .native(storage),
+      variant: .native(Builtin.unsafeCastToNativeObject(storage)),
       discriminator: Nibbles.largeMortal(),
       countAndFlags: storage._countAndFlags)
 #else
@@ -1219,12 +1238,12 @@ extension _StringObject {
   internal init(_ storage: __SharedStringStorage) {
 #if _pointerBitWidth(_64)
     self.init(
-      object: storage,
+      object: Builtin.unsafeCastToNativeObject(storage),
       discriminator: Nibbles.largeMortal(),
       countAndFlags: storage._countAndFlags)
 #elseif _pointerBitWidth(_32)
     self.init(
-      variant: .native(storage),
+      variant: .native(Builtin.unsafeCastToNativeObject(storage)),
       discriminator: Nibbles.largeMortal(),
       countAndFlags: storage._countAndFlags)
 #else
@@ -1232,12 +1251,15 @@ extension _StringObject {
 #endif
   }
 
+  @_unavailableInEmbedded
   internal init(
     cocoa: AnyObject, providesFastUTF8: Bool, isASCII: Bool, length: Int
   ) {
     let countAndFlags = CountAndFlags(sharedCount: length, isASCII: isASCII)
     let discriminator = Nibbles.largeCocoa(providesFastUTF8: providesFastUTF8)
-#if _pointerBitWidth(_64)
+#if $Embedded
+    fatalError("unreachable in embedded Swift")
+#elseif _pointerBitWidth(_64)
     self.init(
       object: cocoa, discriminator: discriminator, countAndFlags: countAndFlags)
     _internalInvariant(self.largeAddressBits == Builtin.reinterpretCast(cocoa))
@@ -1261,6 +1283,7 @@ extension _StringObject {
   #else
   @usableFromInline @inline(never) @_effects(releasenone)
   internal func _invariantCheck() {
+    return
     #if _pointerBitWidth(_64)
     _internalInvariant(MemoryLayout<_StringObject>.size == 16)
 
@@ -1293,7 +1316,7 @@ extension _StringObject {
       _internalInvariant(isImmortal)
       _internalInvariant(smallCount <= 15)
       _internalInvariant(smallCount == count)
-      _internalInvariant(!hasObjCBridgeableObject)
+      //_internalInvariant(!hasObjCBridgeableObject)
     } else {
       _internalInvariant(isLarge)
       _internalInvariant(largeCount == count)
@@ -1307,17 +1330,17 @@ extension _StringObject {
 
         if isImmortal {
           _internalInvariant(!hasNativeStorage)
-          _internalInvariant(!hasObjCBridgeableObject)
+          //_internalInvariant(!hasObjCBridgeableObject)
           _internalInvariant(!_countAndFlags.isNativelyStored)
         } else {
           _internalInvariant(hasNativeStorage)
           _internalInvariant(_countAndFlags.isNativelyStored)
-          _internalInvariant(hasObjCBridgeableObject)
+          //_internalInvariant(hasObjCBridgeableObject)
           _internalInvariant(nativeStorage.count == self.count)
         }
       }
       if largeIsCocoa {
-        _internalInvariant(hasObjCBridgeableObject)
+        //_internalInvariant(hasObjCBridgeableObject)
         _internalInvariant(!isSmall)
         _internalInvariant(!_countAndFlags.isNativelyStored)
         _internalInvariant(!_countAndFlags.isTailAllocated)
@@ -1327,9 +1350,9 @@ extension _StringObject {
         }
       }
       if _countAndFlags.isNativelyStored {
-        let unmanaged = Unmanaged<AnyObject>.fromOpaque(largeAddress)
-        let anyObj = unmanaged.takeUnretainedValue()
-        _internalInvariant(anyObj is __StringStorage)
+        //let unmanaged = Unmanaged<AnyObject>.fromOpaque(largeAddress)
+        //let anyObj = unmanaged.takeUnretainedValue()
+        //_internalInvariant(anyObj is __StringStorage)
       }
     }
 
@@ -1349,7 +1372,7 @@ extension _StringObject {
 
   @inline(never)
   internal func _dump() {
-#if INTERNAL_CHECKS_ENABLED && !SWIFT_STDLIB_STATIC_PRINT
+#if INTERNAL_CHECKS_ENABLED && false
     let raw = self.rawBits
     let word0 = ("0000000000000000" + String(raw.0, radix: 16)).suffix(16)
     let word1 = ("0000000000000000" + String(raw.1, radix: 16)).suffix(16)

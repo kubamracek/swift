@@ -499,6 +499,8 @@ SILCombiner::visitUncheckedRefCastInst(UncheckedRefCastInst *urci) {
   //
   // NOTE: For owned values, we only perform this optimization if we can
   // guarantee that we can eliminate the initial unchecked_ref_cast.
+  if (urci->getOwnershipKind() != OwnershipKind::Owned) { return nullptr; }
+  
   if (auto *otherURCI = dyn_cast<UncheckedRefCastInst>(urci->getOperand())) {
     SILValue otherURCIOp = otherURCI->getOperand();
     if (otherURCIOp->getOwnershipKind() != OwnershipKind::Owned) {

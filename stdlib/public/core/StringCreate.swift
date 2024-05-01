@@ -257,16 +257,16 @@ extension String {
       return (result, repairsMade: false)
     }
 
-    // Fast path for untyped raw storage and known stdlib types
-    if let contigBytes = input as? _HasContiguousBytes,
-      contigBytes._providesContiguousBytesNoCopy {
-      return resultOrSlow(contigBytes.withUnsafeBytes { rawBufPtr in
-        let buffer = UnsafeBufferPointer(
-          start: rawBufPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
-          count: rawBufPtr.count)
-        return String._fromASCIIValidating(buffer)
-      })
-    }
+    // // Fast path for untyped raw storage and known stdlib types
+    // if let contigBytes = input as? _HasContiguousBytes,
+    //   contigBytes._providesContiguousBytesNoCopy {
+    //   return resultOrSlow(contigBytes.withUnsafeBytes { rawBufPtr in
+    //     let buffer = UnsafeBufferPointer(
+    //       start: rawBufPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
+    //       count: rawBufPtr.count)
+    //     return String._fromASCIIValidating(buffer)
+    //   })
+    // }
 
     // Fast path for user-defined Collections
     if let strOpt = input.withContiguousStorageIfAvailable({

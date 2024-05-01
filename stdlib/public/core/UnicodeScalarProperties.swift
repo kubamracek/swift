@@ -752,6 +752,9 @@ extension Unicode.Scalar.Properties {
   }
 
   fileprivate func _getMapping(_ mapping: _CaseMapping) -> String {
+    #if $Embedded
+    fatalError("unicode data not available in embedded Swift")
+    #else
     // First, check if our scalar has a special mapping where it's mapped to
     // more than 1 scalar.
     var specialMappingLength = 0
@@ -787,6 +790,7 @@ extension Unicode.Scalar.Properties {
 
     // We did not have any mapping. Return the scalar as is.
     return String(_scalar)
+    #endif
   }
 
   /// The lowercase mapping of the scalar.
@@ -1115,7 +1119,7 @@ extension Unicode {
       case 27: self = .surrogate
       case 28: self = .privateUse
       case 29: self = .unassigned
-      default: fatalError("Unknown general category \(rawValue)")
+      default: fatalError("Unknown general category")
       }
     }
   }
@@ -1485,7 +1489,7 @@ extension Unicode {
       case 2:
         self = .decimal
       default:
-        fatalError("Unknown numeric type \(rawValue)")
+        fatalError("Unknown numeric type")
       }
     }
   }

@@ -122,7 +122,7 @@ extension Collection {
       } else {
         result += ", "
       }
-      debugPrint(item, terminator: "", to: &result)
+      "(cannot print in embedded)".write(to: &result)
     }
     result += type != nil ? "])" : "]"
     return result

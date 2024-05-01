@@ -61,6 +61,10 @@ extension Unicode {
       case 0xE01F0 ... 0xE0FFF:
         self = .control
       default:
+        #if $Embedded
+        fatalError("unicode data not available in embedded Swift")
+        #else
+
         // Otherwise, default to binary searching the data array.
         let rawEnumValue = _swift_stdlib_getGraphemeBreakProperty(scalar.value)
 
@@ -80,6 +84,8 @@ extension Unicode {
         default:
           self = .any
         }
+
+        #endif
       }
     }
   }
