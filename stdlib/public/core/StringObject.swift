@@ -103,7 +103,9 @@ internal struct _StringObject {
 
 #elseif _pointerBitWidth(_32)
  
+#if $Embedded
   public typealias AnyObject = Builtin.NativeObject
+#endif
 
   @usableFromInline @frozen
   internal enum Variant {
@@ -213,7 +215,9 @@ extension _StringObject {
     _invariantCheck()
   }
 
+#if $Embedded
   public typealias AnyObject = Builtin.NativeObject
+#endif
 
   @inlinable @inline(__always)
   internal init(
@@ -1220,14 +1224,19 @@ extension _StringObject {
 
   @inline(__always)
   internal init(_ storage: __StringStorage) {
+#if $Embedded
+    let castStorage = Builtin.unsafeCastToNativeObject(storage)
+#else
+    let castStorage = storage
+#endif
 #if _pointerBitWidth(_64)
     self.init(
-      object: Builtin.unsafeCastToNativeObject(storage),
+      object: castStorage,
       discriminator: Nibbles.largeMortal(),
       countAndFlags: storage._countAndFlags)
 #elseif _pointerBitWidth(_32)
     self.init(
-      variant: .native(Builtin.unsafeCastToNativeObject(storage)),
+      variant: .native(castStorage),
       discriminator: Nibbles.largeMortal(),
       countAndFlags: storage._countAndFlags)
 #else
@@ -1236,14 +1245,19 @@ extension _StringObject {
   }
 
   internal init(_ storage: __SharedStringStorage) {
+#if $Embedded
+    let castStorage = Builtin.unsafeCastToNativeObject(storage)
+#else
+    let castStorage = storage
+#endif
 #if _pointerBitWidth(_64)
     self.init(
-      object: Builtin.unsafeCastToNativeObject(storage),
+      object: castStorage,
       discriminator: Nibbles.largeMortal(),
       countAndFlags: storage._countAndFlags)
 #elseif _pointerBitWidth(_32)
     self.init(
-      variant: .native(Builtin.unsafeCastToNativeObject(storage)),
+      variant: .native(castStorage),
       discriminator: Nibbles.largeMortal(),
       countAndFlags: storage._countAndFlags)
 #else
