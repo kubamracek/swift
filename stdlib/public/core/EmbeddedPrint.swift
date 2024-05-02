@@ -33,6 +33,7 @@ public func print(_ string: StaticString, terminator: StaticString = "\n") {
   }
 }
 
+@_disfavoredOverload
 public func print(_ string: String, terminator: StaticString = "\n") {
   var string = string
   _ = string.withUTF8 { buf in
