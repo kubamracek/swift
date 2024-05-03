@@ -479,7 +479,7 @@ internal func _int64ToStringImpl(
   _ uppercase: Bool
 ) -> UInt64 {
   if value == 0 {
-    putchar(CInt(("0" as Unicode.Scalar).value))
+    buffer[0] = UInt8(("0" as Unicode.Scalar).value)
     return 1
   }
   
@@ -562,7 +562,7 @@ internal func _uint64ToStringImpl(
   _ uppercase: Bool
 ) -> UInt64 {
   if value == 0 {
-    putchar(CInt(("0" as Unicode.Scalar).value))
+    buffer[0] = UInt8(("0" as Unicode.Scalar).value)
     return 1
   }
   
