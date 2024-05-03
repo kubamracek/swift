@@ -48,6 +48,20 @@ public func print(_ string: String, terminator: StaticString = "\n") {
   }
 }
 
+public func print(_ object: some CustomStringConvertible, terminator: StaticString = "\n") {
+  var string = object.description
+  _ = string.withUTF8 { buf in
+    for c in buf {
+      putchar(CInt(c))
+    }
+  }
+  var p = terminator.utf8Start
+  while p.pointee != 0 {
+    putchar(CInt(p.pointee))
+    p += 1
+  }
+}
+
 func printCharacters(_ buf: UnsafeRawBufferPointer) {
   for c in buf {
     putchar(CInt(c))
