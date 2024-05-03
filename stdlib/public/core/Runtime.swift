@@ -457,6 +457,53 @@ internal func _float80ToString(
 }
 #endif
 
+#if $Embedded
+extension BinaryInteger {
+  internal func _toStringImpl(
+    _ buffer: UnsafeMutablePointer<UTF8.CodeUnit>,
+    _ bufferLength: UInt,
+    _ radix: Int64,
+    _ uppercase: Bool
+  ) -> UInt64 {
+    if self == (0 as Self) {
+      buffer[0] = UInt8(("0" as Unicode.Scalar).value)
+      return 1
+    }
+    
+    func _ascii(_ digit: UInt8) -> UTF8.CodeUnit {
+      if digit < 10 {
+        UInt8(("0" as Unicode.Scalar).value) + digit
+      } else {
+        UInt8(("a" as Unicode.Scalar).value) + (digit - 10)
+      }
+    }
+    let isNegative = Self.isSigned && self < (0 as Self)
+    var value = magnitude
+    
+    var index = Int(bufferLength - 1)
+    while value != 0 {
+      let (quotient, remainder) = value.quotientAndRemainder(dividingBy: Magnitude(radix))
+      buffer[index] = _ascii(UInt8(truncatingIfNeeded: remainder))
+      index -= 1
+      value = quotient
+    }
+    if isNegative {
+      buffer[index] = UInt8(("-" as Unicode.Scalar).value)
+      index -= 1
+    }
+    let start = index + 1
+    let end = Int(bufferLength - 1)
+    let count = end - start + 1
+    
+    let intermediate = UnsafeBufferPointer(start: buffer.advanced(by: start), count: count)
+    let destination = UnsafeMutableRawBufferPointer(start: buffer, count: Int(bufferLength))
+    destination.copyMemory(from: UnsafeRawBufferPointer(intermediate))
+    
+    return UInt64(count)
+  }
+}
+#endif
+
 #if !$Embedded
 // Returns a UInt64, but that value is the length of the string, so it's
 // guaranteed to fit into an Int. This is part of the ABI, so we can't
@@ -478,41 +525,7 @@ internal func _int64ToStringImpl(
   _ radix: Int64,
   _ uppercase: Bool
 ) -> UInt64 {
-  if value == 0 {
-    buffer[0] = UInt8(("0" as Unicode.Scalar).value)
-    return 1
-  }
-  
-  func _ascii(_ digit: UInt8) -> UTF8.CodeUnit {
-    if digit < 10 {
-      UInt8(("0" as Unicode.Scalar).value) + digit
-    } else {
-      UInt8(("a" as Unicode.Scalar).value) + (digit - 10)
-    }
-  }
-  let isNegative = value < 0
-  var value = value.magnitude
-  
-  var index = Int(bufferLength - 1)
-  while value != 0 {
-    let (quotient, remainder) = value.quotientAndRemainder(dividingBy: UInt64(radix))
-    buffer[index] = _ascii(UInt8(truncatingIfNeeded: remainder))
-    index -= 1
-    value = quotient
-  }
-  if isNegative {
-    buffer[index] = UInt8(("-" as Unicode.Scalar).value)
-    index -= 1
-  }
-  let start = index + 1
-  let end = Int(bufferLength - 1)
-  let count = end - start + 1
-  
-  let intermediate = UnsafeBufferPointer(start: buffer.advanced(by: start), count: count)
-  let destination = UnsafeMutableRawBufferPointer(start: buffer, count: Int(bufferLength))
-  destination.copyMemory(from: UnsafeRawBufferPointer(intermediate))
-  
-  return UInt64(count)
+  return value._toStringImpl(buffer, bufferLength, radix, uppercase)
 }
 #endif
 
@@ -561,41 +574,7 @@ internal func _uint64ToStringImpl(
   _ radix: Int64,
   _ uppercase: Bool
 ) -> UInt64 {
-  if value == 0 {
-    buffer[0] = UInt8(("0" as Unicode.Scalar).value)
-    return 1
-  }
-  
-  func _ascii(_ digit: UInt8) -> UTF8.CodeUnit {
-    if digit < 10 {
-      UInt8(("0" as Unicode.Scalar).value) + digit
-    } else {
-      UInt8(("a" as Unicode.Scalar).value) + (digit - 10)
-    }
-  }
-  let isNegative = false // XXX
-  var value = value.magnitude
-  
-  var index = Int(bufferLength - 1)
-  while value != 0 {
-    let (quotient, remainder) = value.quotientAndRemainder(dividingBy: UInt64(radix))
-    buffer[index] = _ascii(UInt8(truncatingIfNeeded: remainder))
-    index -= 1
-    value = quotient
-  }
-  if isNegative {
-    buffer[index] = UInt8(("-" as Unicode.Scalar).value)
-    index -= 1
-  }
-  let start = index + 1
-  let end = Int(bufferLength - 1)
-  let count = end - start + 1
-  
-  let intermediate = UnsafeBufferPointer(start: buffer.advanced(by: start), count: count)
-  let destination = UnsafeMutableRawBufferPointer(start: buffer, count: Int(bufferLength))
-  destination.copyMemory(from: UnsafeRawBufferPointer(intermediate))
-  
-  return UInt64(count)
+  return value._toStringImpl(buffer, bufferLength, radix, uppercase)
 }
 #endif
 
