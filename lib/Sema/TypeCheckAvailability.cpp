@@ -3807,6 +3807,25 @@ diagnoseDeclAsyncAvailability(const ValueDecl *D, SourceRange R,
   return true;
 }
 
+static bool
+diagnoseStringUsageInEmbeddedSwift(const ValueDecl *D, SourceRange R, const Expr *call, const ExportContext &Where) {
+  ASTContext &ctx = Where.getDeclContext()->getASTContext();
+  if (!ctx.LangOpts.hasFeature(Feature::Embedded)) return false;
+  if (ctx.LangOpts.EnableStringsInEmbeddedSwift) return false;
+
+  if (D != ctx.getStringDecl())
+    return false;
+
+  // Are we in an unavailable context? Then don't diagnose.
+  auto referencedPlatform = Where.getUnavailablePlatformKind();
+  if (referencedPlatform && (*referencedPlatform == PlatformKind::none))
+    return false;
+
+  SourceLoc diagLoc = call ? call->getLoc() : R.Start;
+  ctx.Diags.diagnose(diagLoc, diag::embedded_string_without_opt_in);
+  return true;
+}
+
 /// Diagnose uses of unavailable declarations. Returns true if a diagnostic
 /// was emitted.
 bool swift::diagnoseDeclAvailability(const ValueDecl *D, SourceRange R,
@@ -3841,6 +3860,9 @@ bool swift::diagnoseDeclAvailability(const ValueDecl *D, SourceRange R,
     return true;
 
   if (diagnoseDeclAsyncAvailability(D, R, call, Where))
+    return true;
+
+  if (diagnoseStringUsageInEmbeddedSwift(D, R, call, Where))
     return true;
 
   // Make sure not to diagnose an accessor's deprecation if we already

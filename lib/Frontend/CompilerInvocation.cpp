@@ -1520,6 +1520,8 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
     }
   }
 
+  Opts.EnableStringsInEmbeddedSwift = Args.hasArg(OPT_enable_strings);
+
   if (auto A = Args.getLastArg(OPT_checked_async_objc_bridging)) {
     auto value = llvm::StringSwitch<std::optional<bool>>(A->getValue())
                      .Case("off", false)
@@ -3461,6 +3463,10 @@ bool CompilerInvocation::parseArgs(
   } else {
     if (SILOpts.NoAllocations) {
       Diags.diagnose(SourceLoc(), diag::no_allocations_without_embedded);
+      return true;
+    }
+    if (LangOpts.EnableStringsInEmbeddedSwift) {
+      Diags.diagnose(SourceLoc(), diag::enable_strings_without_embedded);
       return true;
     }
   }

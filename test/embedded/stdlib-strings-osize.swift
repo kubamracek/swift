@@ -1,4 +1,9 @@
-// RUN: %target-run-simple-swift(-Osize -Xlinker -dead_strip -Xlinker -map -Xlinker %t/a.out.map -enable-experimental-feature Embedded -parse-as-library -runtime-compatibility-version none -wmo) | %FileCheck %s
+// RUN: %empty-directory(%t)
+
+// RUN: %target-swift-frontend %s -parse-as-library -enable-experimental-feature Embedded -c -o %t/main.o -Osize -enable-strings
+// RUN: %target-clang %t/main.o -o %t/a.out -dead_strip -Wl,-map,%t/a.out.map
+// RUN: %target-run %t/a.out | %FileCheck %s
+// RUN: dsymutil %t/a.out
 
 // REQUIRES: executable_test
 // REQUIRES: optimized_stdlib

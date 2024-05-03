@@ -894,6 +894,10 @@ def no_allocations : Flag<["-"], "no-allocations">,
   Flags<[FrontendOption, HelpHidden]>,
   HelpText<"Diagnose any code that needs to heap allocate (classes, closures, etc.)">;
 
+def enable_strings : Flag<["-"], "enable-strings">,
+  Flags<[FrontendOption, HelpHidden]>,
+  HelpText<"Allow using the String type in embedded Swift (which has a large associated codesize cost)">;
+
 // Platform options.
 def enable_app_extension : Flag<["-"], "application-extension">,
   Flags<[FrontendOption, NoInteractiveOption]>,

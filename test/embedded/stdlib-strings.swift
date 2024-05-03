@@ -1,4 +1,4 @@
-// RUN: %target-run-simple-swift(-enable-experimental-feature Embedded -parse-as-library -runtime-compatibility-version none -wmo) | %FileCheck %s
+// RUN: %target-run-simple-swift(-enable-experimental-feature Embedded -parse-as-library -runtime-compatibility-version none -wmo -Xfrontend -enable-strings) | %FileCheck %s
 
 // REQUIRES: executable_test
 // REQUIRES: optimized_stdlib

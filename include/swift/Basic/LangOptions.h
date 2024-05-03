@@ -596,6 +596,9 @@ namespace swift {
     /// Disables `DynamicActorIsolation` feature.
     bool DisableDynamicActorIsolation = false;
 
+    /// Whether the user has opted in to using Swift.String via -enable-strings
+    bool EnableStringsInEmbeddedSwift = false;
+
     /// Whether or not to allow experimental features that are only available
     /// in "production".
 #ifdef NDEBUG
