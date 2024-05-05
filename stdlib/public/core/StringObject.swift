@@ -448,7 +448,7 @@ extension _StringObject {
 #if _pointerBitWidth(_64)
     return 32
 #elseif _pointerBitWidth(_32)
-    return 32
+    return 20
 #else
 #error("Unknown platform")
 #endif
@@ -1159,7 +1159,6 @@ extension _StringObject {
 
   // Whether the object stored can be bridged directly as a NSString
   @usableFromInline // @opaque
-  @_unavailableInEmbedded
   internal var hasObjCBridgeableObject: Bool {
     @_effects(releasenone) get {
       // Currently, all mortal objects can zero-cost bridge
@@ -1297,7 +1296,6 @@ extension _StringObject {
   #else
   @usableFromInline @inline(never) @_effects(releasenone)
   internal func _invariantCheck() {
-    return
     #if _pointerBitWidth(_64)
     _internalInvariant(MemoryLayout<_StringObject>.size == 16)
 
@@ -1330,7 +1328,7 @@ extension _StringObject {
       _internalInvariant(isImmortal)
       _internalInvariant(smallCount <= 15)
       _internalInvariant(smallCount == count)
-      //_internalInvariant(!hasObjCBridgeableObject)
+      _internalInvariant(!hasObjCBridgeableObject)
     } else {
       _internalInvariant(isLarge)
       _internalInvariant(largeCount == count)
@@ -1344,17 +1342,17 @@ extension _StringObject {
 
         if isImmortal {
           _internalInvariant(!hasNativeStorage)
-          //_internalInvariant(!hasObjCBridgeableObject)
+          _internalInvariant(!hasObjCBridgeableObject)
           _internalInvariant(!_countAndFlags.isNativelyStored)
         } else {
           _internalInvariant(hasNativeStorage)
           _internalInvariant(_countAndFlags.isNativelyStored)
-          //_internalInvariant(hasObjCBridgeableObject)
+          _internalInvariant(hasObjCBridgeableObject)
           _internalInvariant(nativeStorage.count == self.count)
         }
       }
       if largeIsCocoa {
-        //_internalInvariant(hasObjCBridgeableObject)
+        _internalInvariant(hasObjCBridgeableObject)
         _internalInvariant(!isSmall)
         _internalInvariant(!_countAndFlags.isNativelyStored)
         _internalInvariant(!_countAndFlags.isTailAllocated)
@@ -1364,9 +1362,11 @@ extension _StringObject {
         }
       }
       if _countAndFlags.isNativelyStored {
-        //let unmanaged = Unmanaged<AnyObject>.fromOpaque(largeAddress)
-        //let anyObj = unmanaged.takeUnretainedValue()
-        //_internalInvariant(anyObj is __StringStorage)
+        #if !$Embedded
+        let unmanaged = Unmanaged<AnyObject>.fromOpaque(largeAddress)
+        let anyObj = unmanaged.takeUnretainedValue()
+        _internalInvariant(anyObj is __StringStorage)
+        #endif
       }
     }
 
@@ -1386,7 +1386,7 @@ extension _StringObject {
 
   @inline(never)
   internal func _dump() {
-#if INTERNAL_CHECKS_ENABLED && false
+#if INTERNAL_CHECKS_ENABLED && !SWIFT_STDLIB_STATIC_PRINT
     let raw = self.rawBits
     let word0 = ("0000000000000000" + String(raw.0, radix: 16)).suffix(16)
     let word1 = ("0000000000000000" + String(raw.1, radix: 16)).suffix(16)

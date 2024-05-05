@@ -179,7 +179,9 @@ fileprivate func _allocate<T: AnyObject>(
   growthFactor: Float? = nil, // Exponential growth factor for large allocs
   tailAllocator: (_ numTailBytes: Int) -> T // Do the actual tail allocation
 ) -> (T, realNumTailBytes: Int) {
-  //_internalInvariant(getSwiftClassInstanceExtents(T.self).1 == numHeaderBytes)
+#if !$Embedded
+  _internalInvariant(getSwiftClassInstanceExtents(T.self).1 == numHeaderBytes)
+#endif
 
   func roundUp(_ x: Int) -> Int { (x + 15) & ~15 }
 

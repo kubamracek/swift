@@ -566,7 +566,7 @@ private func getConstantTaggedCocoaContents(_ cocoaString: _CocoaString) ->
 #endif
 }
 
-#if false
+#if !$Embedded
 @usableFromInline
 @_effects(releasenone) // @opaque
 internal func _bridgeCocoaString(_ cocoaString: _CocoaString) -> _StringGuts {

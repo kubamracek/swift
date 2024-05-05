@@ -181,7 +181,7 @@ split_embedded_sources(
   EMBEDDED StringStorage.swift
   EMBEDDED StringStorageBridge.swift
     NORMAL StringSwitch.swift
-    NORMAL StringTesting.swift
+  EMBEDDED StringTesting.swift
   EMBEDDED StringUnicodeScalarView.swift
   EMBEDDED StringUTF16View.swift
   EMBEDDED StringUTF8View.swift

@@ -153,7 +153,7 @@ extension _SmallString {
   #endif // INTERNAL_CHECKS_ENABLED
 
   internal func _dump() {
-    #if false
+    #if INTERNAL_CHECKS_ENABLED
     print("""
       smallUTF8: count: \(self.count), codeUnits: \(
         self.map { String($0, radix: 16) }.joined()

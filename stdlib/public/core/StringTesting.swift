@@ -12,16 +12,19 @@
 
 // Declarations to enable ease-of-testing
 
-public // @testable
 struct _StringRepresentation {
   public var _isASCII: Bool
   public var _count: Int
   public var _capacity: Int
 
-  public enum _Form {
+  enum _Form {
     case _small
     case _cocoa(object: AnyObject)
+    #if !$Embedded
     case _native(object: AnyObject)
+    #else
+    case _native(object: __StringStorage)
+    #endif
     case _immortal(address: UInt)
     // TODO: shared native
   }
@@ -43,9 +46,9 @@ extension _StringRepresentation: Sendable {}
 extension _StringRepresentation._Form: Sendable {}
 
 extension String {
-  public // @testable
   func _classify() -> _StringRepresentation { return _guts._classify() }
 
+#if !$Embedded
   @_alwaysEmitIntoClient
   public // @testable
   func _deconstructUTF8<ToPointer: _Pointer>(
@@ -59,6 +62,7 @@ extension String {
   ) {
     _guts._deconstructUTF8(scratch: scratch)
   }
+#endif
 }
 
 extension _StringGuts {
@@ -73,10 +77,12 @@ extension _StringGuts {
       result._capacity = _SmallString.capacity
       return result
     }
+    #if !$Embedded
     if _object.largeIsCocoa {
       result._form = ._cocoa(object: _object.cocoaObject)
       return result
     }
+    #endif
 
     // TODO: shared native
     _internalInvariant(_object.providesFastUTF8)
@@ -93,6 +99,7 @@ extension _StringGuts {
     fatalError()
   }
 
+#if !$Embedded
 
 /*
 
@@ -180,4 +187,7 @@ extension _StringGuts {
     // Array's owner cannot be nil, even though it is declared optional...
     return (owner: owner!, ptr, length: utf8.count - 1)
   }
+
+#endif
+
 }
