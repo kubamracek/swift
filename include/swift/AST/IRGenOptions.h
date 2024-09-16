@@ -480,6 +480,9 @@ public:
 
   unsigned EmitAsyncFramePushPopMetadata : 1;
 
+  // Whether to emit mergeable or non-mergeable traps.
+  unsigned MergeableTraps : 1;
+
   /// The number of threads for multi-threaded code generation.
   unsigned NumThreads = 0;
 
@@ -570,6 +573,7 @@ public:
         ColocateTypeDescriptors(true), UseRelativeProtocolWitnessTables(false),
         UseFragileResilientProtocolWitnesses(false),
         EnableHotColdSplit(false), EmitAsyncFramePushPopMetadata(false),
+        MergeableTraps(false),
         CmdArgs(), SanitizeCoverage(llvm::SanitizerCoverageOptions()),
         TypeInfoFilter(TypeInfoDumpFilter::All),
         PlatformCCallingConvention(llvm::CallingConv::C), UseCASBackend(false),
