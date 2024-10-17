@@ -163,6 +163,7 @@ static void demangle(llvm::raw_ostream &os, llvm::StringRef name,
   if (RemangleMode) {
     std::string remangled;
     if (!pointer || !(name.starts_with(MANGLING_PREFIX_STR) ||
+                      name.starts_with(MANGLING_PREFIX_EMBEDDED_STR) ||
                       name.starts_with("_S"))) {
       // Just reprint the original mangled name if it didn't demangle or is in
       // the old mangling scheme.

@@ -65,7 +65,7 @@ std::string SpecializationMangler::finalize() {
     FuncTopLevel = D.demangleSymbol(FuncName);
     assert(FuncTopLevel);
   }
-  if (FuncName.starts_with(MANGLING_PREFIX_EMBEDDED_STR)) {
+  else if (FuncName.starts_with(MANGLING_PREFIX_EMBEDDED_STR)) {
     FuncTopLevel = D.demangleSymbol(FuncName);
     assert(FuncTopLevel);
   }

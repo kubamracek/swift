@@ -1190,7 +1190,7 @@ static std::string mangleClangDecl(Decl *decl, bool isForeign) {
 
 std::string SILDeclRef::mangle(ManglingKind MKind) const {
   using namespace Mangle;
-  ASTMangler mangler(ASTMangler::ManglingFlavor::Embedded);
+  ASTMangler mangler(getASTContext());
 
   if (auto *derivativeFunctionIdentifier = getDerivativeFunctionIdentifier()) {
     std::string originalMangled = asAutoDiffOriginalFunction().mangle(MKind);

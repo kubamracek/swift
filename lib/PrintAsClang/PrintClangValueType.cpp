@@ -215,7 +215,7 @@ void ClangValueTypePrinter::printValueTypeDecl(
 
   auto typeMetadataFunc = irgen::LinkEntity::forTypeMetadataAccessFunction(
       typeDecl->getDeclaredType()->getCanonicalType());
-  std::string typeMetadataFuncName = typeMetadataFunc.mangleAsString();
+  std::string typeMetadataFuncName = typeMetadataFunc.mangleAsString(typeDecl->getASTContext());
   auto typeMetadataFuncGenericParams =
       interopContext.getIrABIDetails()
           .getTypeMetadataAccessFunctionGenericRequirementParameters(
@@ -574,7 +574,7 @@ void ClangValueTypePrinter::printClangTypeSwiftGenericTraits(
     return;
   auto typeMetadataFunc = irgen::LinkEntity::forTypeMetadataAccessFunction(
       typeDecl->getDeclaredInterfaceType()->getCanonicalType());
-  std::string typeMetadataFuncName = typeMetadataFunc.mangleAsString();
+  std::string typeMetadataFuncName = typeMetadataFunc.mangleAsString(typeDecl->getASTContext());
   printTypeGenericTraits(os, typeDecl, typeMetadataFuncName,
                          /*typeMetadataFuncRequirements=*/{}, moduleContext,
                          declAndTypePrinter);

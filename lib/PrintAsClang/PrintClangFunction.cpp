@@ -144,7 +144,7 @@ private:
 
 public:
   void printTypeName(raw_ostream &os) const {
-    ClangSyntaxPrinter(os).printClangTypeReference(typeDecl);
+    ClangSyntaxPrinter(typeDecl->getASTContext(), os).printClangTypeReference(typeDecl);
   }
 
   static void
@@ -209,7 +209,7 @@ public:
       const ModuleDecl *moduleContext, DeclAndTypePrinter &declPrinter,
       FunctionSignatureTypeUse typeUseKind =
           FunctionSignatureTypeUse::ParamType)
-      : ClangSyntaxPrinter(os), cPrologueOS(cPrologueOS),
+      : ClangSyntaxPrinter(moduleContext->getASTContext(), os), cPrologueOS(cPrologueOS),
         typeMapping(typeMapping), interopContext(interopContext),
         languageMode(languageMode), modifiersDelegate(modifiersDelegate),
         moduleContext(moduleContext), declPrinter(declPrinter),
@@ -303,7 +303,7 @@ public:
     auto *cd = CT->getDecl();
     if (cd->hasClangNode()) {
       const auto *clangDecl = cd->getClangDecl();
-      ClangSyntaxPrinter(os).printClangTypeReference(clangDecl);
+      ClangSyntaxPrinter(cd->getASTContext(), os).printClangTypeReference(clangDecl);
       bool alreadyPointer = false;
       if (const auto *typedefDecl = dyn_cast<clang::TypedefNameDecl>(clangDecl))
         if (importer::isCFTypeDecl(typedefDecl))

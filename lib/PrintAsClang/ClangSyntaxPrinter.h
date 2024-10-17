@@ -49,7 +49,7 @@ class ClangSyntaxPrinter {
 public:
   enum class LeadingTrivia { None, Comma };
 
-  ClangSyntaxPrinter(raw_ostream &os) : os(os) {}
+  ClangSyntaxPrinter(ASTContext &Ctx, raw_ostream &os) : os(os), mangler(Ctx) {}
 
   /// Print a given identifier. If the identifer conflicts with a keyword, add a
   /// trailing underscore.
@@ -249,7 +249,7 @@ public:
 
 protected:
   raw_ostream &os;
-  swift::Mangle::ASTMangler mangler = Mangle::ASTMangler(Mangle::ASTMangler::ManglingFlavor::Default);
+  swift::Mangle::ASTMangler mangler;
 };
 
 } // end namespace swift

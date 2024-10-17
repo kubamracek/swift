@@ -332,12 +332,12 @@ static llvm::ConstantInt *getDiscriminatorForString(IRGenModule &IGM,
 }
 
 static std::string mangle(AssociatedType association) {
-  return IRGenMangler()
+  return IRGenMangler(association.getAssociation()->getASTContext())
     .mangleAssociatedTypeAccessFunctionDiscriminator(association);
 }
 
 static std::string mangle(const AssociatedConformance &association) {
-  return IRGenMangler()
+  return IRGenMangler(association.getAssociatedRequirement()->getASTContext())
     .mangleAssociatedTypeWitnessTableAccessFunctionDiscriminator(association);
 }
 

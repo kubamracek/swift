@@ -209,7 +209,7 @@ void printPrimitiveGenericTypeTraits(raw_ostream &os, ASTContext &astContext,
 
     auto typeMetadataFunc = irgen::LinkEntity::forTypeMetadata(
         type->getCanonicalType(), irgen::TypeMetadataAddress::AddressPoint);
-    std::string typeMetadataVarName = typeMetadataFunc.mangleAsString();
+    std::string typeMetadataVarName = typeMetadataFunc.mangleAsString(type->getASTContext());
 
     if (isCForwardDefinition) {
       os << "// type metadata address for " << type.getString() << ".\n";

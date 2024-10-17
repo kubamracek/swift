@@ -811,7 +811,7 @@ namespace {
       if (!IGM.IRGen.Opts.EnableAnonymousContextMangledNames)
         return;
 
-      IRGenMangler mangler;
+      IRGenMangler mangler(IGM.Context);
       auto mangledName = mangler.mangleAnonymousDescriptorName(Name);
       auto mangledNameConstant =
         IGM.getAddrOfGlobalString(mangledName,
@@ -2666,7 +2666,7 @@ namespace {
             OpaqueParamIndex(opaqueParamIndex) {}
 
       std::string getSymbol() const override {
-        IRGenMangler mangler;
+        IRGenMangler mangler(IGM.Context);
         return mangler.mangleSymbolNameForUnderlyingTypeAccessorString(
             O, OpaqueParamIndex);
       }
@@ -2704,7 +2704,7 @@ namespace {
           : AbstractMetadataAccessor(IGM, O), R(requirement), P(P) {}
 
       std::string getSymbol() const override {
-        IRGenMangler mangler;
+        IRGenMangler mangler(IGM.Context);
         return mangler.mangleSymbolNameForUnderlyingWitnessTableAccessorString(
             O, R, P);
       }
@@ -2920,7 +2920,7 @@ IRGenModule::getAddrOfSharedContextDescriptor(LinkEntity entity,
       // with the same context mangling (a clang module and its overlay,
       // equivalent extensions, etc.). These can share a context descriptor
       // at runtime.
-      auto mangledName = entity.mangleAsString();
+      auto mangledName = entity.mangleAsString(Context);
       if (auto otherDefinition = Module.getGlobalVariable(mangledName)) {
         if (!otherDefinition->isDeclaration() ||
             !entity.isAlwaysSharedLinkage()) {
