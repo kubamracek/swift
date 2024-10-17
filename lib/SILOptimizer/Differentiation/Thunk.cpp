@@ -124,7 +124,7 @@ SILFunction *getOrCreateReabstractionThunk(SILOptFunctionBuilder &fb,
   auto fromInterfaceType = fromType->mapTypeOutOfContext()->getCanonicalType();
   auto toInterfaceType = toType->mapTypeOutOfContext()->getCanonicalType();
 
-  Mangle::ASTMangler mangler;
+  Mangle::ASTMangler mangler(&module);
   std::string name = mangler.mangleReabstractionThunkHelper(
       thunkType, fromInterfaceType, toInterfaceType, Type(), Type(),
       module.getSwiftModule());

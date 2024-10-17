@@ -1490,7 +1490,7 @@ bool TypeConverter::readLegacyTypeInfo(llvm::vfs::FileSystem &fs,
 }
 
 static std::string mangleTypeAsContext(const NominalTypeDecl *decl) {
-  Mangle::ASTMangler Mangler;
+  Mangle::ASTMangler Mangler(decl);
   return Mangler.mangleTypeAsContextUSR(decl);
 }
 

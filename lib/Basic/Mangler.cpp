@@ -122,7 +122,11 @@ void Mangler::beginManglingWithoutPrefix() {
 
 void Mangler::beginMangling() {
   beginManglingWithoutPrefix();
-  Buffer << MANGLING_PREFIX_STR;
+  if (UseEmbeddedPrefix) {
+    Buffer << MANGLING_PREFIX_EMBEDDED_STR;
+  } else {
+    Buffer << MANGLING_PREFIX_STR;
+  }
 }
 
 /// Finish the mangling of the symbol and return the mangled name.
@@ -133,7 +137,9 @@ std::string Mangler::finalize() {
 
 #ifndef NDEBUG
   if (StringRef(result).starts_with(MANGLING_PREFIX_STR))
-    verify(result);
+    verify(result, UseEmbeddedPrefix);
+  if (StringRef(result).starts_with(MANGLING_PREFIX_EMBEDDED_STR))
+    verify(result, UseEmbeddedPrefix);
 #endif
 
   return result;
@@ -158,16 +164,17 @@ static bool treeContains(Demangle::NodePointer Nd, Demangle::Node::Kind Kind) {
   return false;
 }
 
-void Mangler::verify(StringRef nameStr) {
+void Mangler::verify(StringRef nameStr, bool Embedded) {
 #ifndef NDEBUG
   SmallString<128> buffer;
   if (!nameStr.starts_with(MANGLING_PREFIX_STR) &&
+      !nameStr.starts_with(MANGLING_PREFIX_EMBEDDED_STR) &&
       !nameStr.starts_with("_Tt") &&
       !nameStr.starts_with("_S")) {
     // This list is the set of prefixes recognized by Demangler::demangleSymbol.
     // It should be kept in sync.
     assert(StringRef(MANGLING_PREFIX_STR) != "_S" && "redundant check");
-    buffer += MANGLING_PREFIX_STR;
+    buffer += Embedded ? MANGLING_PREFIX_EMBEDDED_STR : MANGLING_PREFIX_STR;
     buffer += nameStr;
     nameStr = buffer.str();
   }
@@ -178,7 +185,7 @@ void Mangler::verify(StringRef nameStr) {
     llvm::errs() << "Can't demangle: " << nameStr << '\n';
     abort();
   }
-  auto mangling = mangleNode(Root);
+  auto mangling = mangleNode(Root, Embedded);
   if (!mangling.isSuccess()) {
     llvm::errs() << "Can't remangle: " << nameStr << '\n';
     abort();

@@ -73,6 +73,8 @@ protected:
   /// If enabled, non-ASCII names are encoded in modified Punycode.
   bool UsePunycode = true;
 
+  bool UseEmbeddedPrefix = false;
+
   /// If enabled, repeated entities are mangled using substitutions ('A...').
   bool UseSubstitutions = true;
 
@@ -135,7 +137,7 @@ protected:
   void finalize(llvm::raw_ostream &stream);
 
   /// Verify that demangling and remangling works.
-  static void verify(StringRef mangledName);
+  static void verify(StringRef mangledName, bool Embedded);
 
   SWIFT_DEBUG_DUMP;
 

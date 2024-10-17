@@ -13,11 +13,14 @@
 #ifndef SWIFT_AST_ASTMANGLER_H
 #define SWIFT_AST_ASTMANGLER_H
 
+#include "swift/AST/ASTContext.h"
 #include "swift/AST/Decl.h"
+#include "swift/AST/DeclContext.h"
 #include "swift/AST/FreestandingMacroExpansion.h"
 #include "swift/AST/Types.h"
 #include "swift/Basic/Mangler.h"
 #include "swift/Basic/TaggedUnion.h"
+#include "swift/SIL/SILModule.h"
 #include <optional>
 
 namespace clang {
@@ -171,6 +174,11 @@ protected:
   std::vector<std::pair<SymbolicReferent, unsigned>> SymbolicReferences;
   
 public:
+  enum class ManglingFlavor {
+    Default,
+    Embedded,
+  };
+
   enum class SymbolKind {
     Default,
     DynamicThunk,
@@ -185,11 +193,34 @@ public:
   };
 
   /// lldb overrides the defaulted argument to 'true'.
-  ASTMangler(bool DWARFMangling = false) {
+  ASTMangler(ManglingFlavor Flavor, bool DWARFMangling = false) {
     if (DWARFMangling) {
       DWARFMangling = true;
       RespectOriginallyDefinedIn = false;
     }
+    UseEmbeddedPrefix = Flavor == ManglingFlavor::Embedded;
+  }
+
+  ASTMangler(const Decl *D) : ASTMangler(ManglingFlavor::Default) {
+    UseEmbeddedPrefix = D->getASTContext().LangOpts.hasFeature(Feature::Embedded);
+  }
+  ASTMangler(const DeclContext *DC) : ASTMangler(ManglingFlavor::Default) {
+    UseEmbeddedPrefix = DC->getASTContext().LangOpts.hasFeature(Feature::Embedded);
+  }
+  ASTMangler(const GenericTypeDecl *D) : ASTMangler(ManglingFlavor::Default) {
+    UseEmbeddedPrefix = D->getASTContext().LangOpts.hasFeature(Feature::Embedded);
+  }
+  ASTMangler(ASTContext *C) : ASTMangler(ManglingFlavor::Default) {
+    UseEmbeddedPrefix = C->LangOpts.hasFeature(Feature::Embedded);
+  }
+  ASTMangler(ASTContext &C) : ASTMangler(ManglingFlavor::Default) {
+    UseEmbeddedPrefix = C.LangOpts.hasFeature(Feature::Embedded);
+  }
+  ASTMangler(SILModule *M) : ASTMangler(ManglingFlavor::Default) {
+    UseEmbeddedPrefix = M->getASTContext().LangOpts.hasFeature(Feature::Embedded);
+  }
+  ASTMangler(const ASTMangler *Mangler) : ASTMangler(ManglingFlavor::Default) {
+    UseEmbeddedPrefix = Mangler->UseEmbeddedPrefix;
   }
 
   void addTypeSubstitution(Type type, GenericSignature sig) {

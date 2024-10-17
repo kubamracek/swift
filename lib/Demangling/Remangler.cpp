@@ -210,6 +210,7 @@ class Remangler : public RemanglerBase {
   friend void Mangle::mangleIdentifier(Mangler &M, StringRef ident);
   friend class Mangle::SubstitutionMerging;
 
+  const bool UseEmbeddedPrefix = false;
   const bool UsePunycode = true;
 
   Vector<SubstitutionWord> Words;
@@ -384,8 +385,8 @@ class Remangler : public RemanglerBase {
 #include "swift/Demangling/DemangleNodes.def"
 
 public:
-  Remangler(SymbolicResolver Resolver, NodeFactory &Factory)
-       : RemanglerBase(Factory), Resolver(Resolver) { }
+  Remangler(SymbolicResolver Resolver, NodeFactory &Factory, bool UseEmbeddedPrefix)
+       : RemanglerBase(Factory), Resolver(Resolver), UseEmbeddedPrefix(UseEmbeddedPrefix) { }
 
   ManglingError mangle(Node *node, unsigned depth) {
     if (depth > Remangler::MaxDepth) {
@@ -1783,8 +1784,13 @@ ManglingError Remangler::mangleGetter(Node *node, unsigned depth) {
   return mangleAbstractStorage(node->getFirstChild(), "g", depth + 1);
 }
 
+__attribute__((optnone))
 ManglingError Remangler::mangleGlobal(Node *node, unsigned depth) {
-  Buffer << MANGLING_PREFIX_STR;
+  if (UseEmbeddedPrefix) {
+    Buffer << MANGLING_PREFIX_EMBEDDED_STR;
+  } else {
+    Buffer << MANGLING_PREFIX_STR;
+  }
   bool mangleInReverseOrder = false;
   for (auto Iter = node->begin(), End = node->end(); Iter != End; ++Iter) {
     Node *Child = *Iter;
@@ -3994,20 +4000,20 @@ ManglingError Remangler::mangleDependentGenericParamValueMarker(Node *node,
 } // anonymous namespace
 
 /// The top-level interface to the remangler.
-ManglingErrorOr<std::string> Demangle::mangleNode(NodePointer node) {
+ManglingErrorOr<std::string> Demangle::mangleNode(NodePointer node, bool Embedded) {
   return mangleNode(node, [](SymbolicReferenceKind, const void *) -> NodePointer {
                             return nullptr;
-                          });
+                          }, Embedded);
   //  unreachable("should not try to mangle a symbolic reference; "
   //              "resolve it to a non-symbolic demangling tree instead");
 }
 
 ManglingErrorOr<std::string>
-Demangle::mangleNode(NodePointer node, SymbolicResolver resolver) {
+Demangle::mangleNode(NodePointer node, SymbolicResolver resolver, bool Embedded) {
   if (!node) return std::string();
 
   NodeFactory Factory;
-  Remangler remangler(resolver, Factory);
+  Remangler remangler(resolver, Factory, Embedded);
   ManglingError err = remangler.mangle(node, 0);
   if (!err.isSuccess())
     return err;
@@ -4017,11 +4023,11 @@ Demangle::mangleNode(NodePointer node, SymbolicResolver resolver) {
 
 ManglingErrorOr<llvm::StringRef>
 Demangle::mangleNode(NodePointer node, SymbolicResolver resolver,
-                     NodeFactory &Factory) {
+                     NodeFactory &Factory, bool Embedded) {
   if (!node)
     return StringRef();
 
-  Remangler remangler(resolver, Factory);
+  Remangler remangler(resolver, Factory, Embedded);
   ManglingError err = remangler.mangle(node, 0);
   if (!err.isSuccess())
     return err;

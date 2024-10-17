@@ -249,7 +249,7 @@ public:
 
 protected:
   raw_ostream &os;
-  swift::Mangle::ASTMangler mangler;
+  swift::Mangle::ASTMangler mangler = Mangle::ASTMangler(Mangle::ASTMangler::ManglingFlavor::Default);
 };
 
 } // end namespace swift

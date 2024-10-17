@@ -667,7 +667,7 @@ public:
 };
 
 /// Remangle a demangled parse tree.
-ManglingErrorOr<std::string> mangleNode(NodePointer root);
+ManglingErrorOr<std::string> mangleNode(NodePointer root, bool Embedded = false);
 
 using SymbolicResolver =
   llvm::function_ref<Demangle::NodePointer (SymbolicReferenceKind,
@@ -675,7 +675,7 @@ using SymbolicResolver =
 
 /// Remangle a demangled parse tree, using a callback to resolve
 /// symbolic references.
-ManglingErrorOr<std::string> mangleNode(NodePointer root, SymbolicResolver resolver);
+ManglingErrorOr<std::string> mangleNode(NodePointer root, SymbolicResolver resolver, bool Embedded = false);
 
 /// Remangle a demangled parse tree, using a callback to resolve
 /// symbolic references.
@@ -684,7 +684,7 @@ ManglingErrorOr<std::string> mangleNode(NodePointer root, SymbolicResolver resol
 /// alive as long as the returned string is used.
 ManglingErrorOr<llvm::StringRef> mangleNode(NodePointer root,
                                             SymbolicResolver resolver,
-                                            NodeFactory &Factory);
+                                            NodeFactory &Factory, bool Embedded = false);
 
 /// Remangle in the old mangling scheme.
 ///

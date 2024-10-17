@@ -43,7 +43,7 @@ struct SymbolicMangling {
 /// The mangler for all kind of symbols produced in IRGen.
 class IRGenMangler : public Mangle::ASTMangler {
 public:
-  IRGenMangler() { }
+  IRGenMangler() : ASTMangler(ManglingFlavor::Default) { }
 
   std::string mangleDispatchThunk(const FuncDecl *func) {
     llvm::SaveAndRestore X(AllowInverses, inversesAllowed(func));

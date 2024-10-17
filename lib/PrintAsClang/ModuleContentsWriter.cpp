@@ -740,7 +740,7 @@ public:
       // FIXME: It'd be nice to share the mangler or even memoize mangled names,
       //        but we'd have to stop using `llvm::array_pod_sort()` so that we
       //        could capture some outside state.
-      Mangle::ASTMangler mangler;
+      Mangle::ASTMangler mangler(*lhs);
       auto getMangledName = [&](const Decl *D) {
         auto VD = dyn_cast<ValueDecl>(D);
         if (!VD && isa<ExtensionDecl>(D))

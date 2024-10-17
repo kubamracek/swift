@@ -1190,7 +1190,7 @@ static std::string mangleClangDecl(Decl *decl, bool isForeign) {
 
 std::string SILDeclRef::mangle(ManglingKind MKind) const {
   using namespace Mangle;
-  ASTMangler mangler;
+  ASTMangler mangler(ASTMangler::ManglingFlavor::Embedded);
 
   if (auto *derivativeFunctionIdentifier = getDerivativeFunctionIdentifier()) {
     std::string originalMangled = asAutoDiffOriginalFunction().mangle(MKind);
@@ -1231,7 +1231,7 @@ std::string SILDeclRef::mangle(ManglingKind MKind) const {
     auto *funcDecl = cast<AbstractFunctionDecl>(getDecl());
     auto genericSig = funcDecl->getGenericSignature();
     return GenericSpecializationMangler::manglePrespecialization(
-        mangledNonSpecializedString, genericSig, getSpecializedSignature());
+        getASTContext(), mangledNonSpecializedString, genericSig, getSpecializedSignature());
   }
 
   ASTMangler::SymbolKind SKind = ASTMangler::SymbolKind::Default;

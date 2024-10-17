@@ -185,6 +185,7 @@ int swift::Demangle::getManglingPrefixLength(llvm::StringRef mangledName) {
     /*Swift 4*/   "_T0",
     /*Swift 4.x*/ "$S", "_$S",
     /*Swift 5+*/  "$s", "_$s",
+    /*Swift 5+ Embedded Swift*/  "$e", "_$e",
     /*Swift 5+ for filenames*/ "@__swiftmacro_",
   };
 
@@ -353,7 +354,7 @@ std::string swift::Demangle::mangledNameForTypeMetadataAccessor(
     global->addChild(nominalDescriptor, D);
   }
 
-  auto mangleResult = mangleNode(global);
+  auto mangleResult = mangleNode(global, false);
   assert(mangleResult.isSuccess());
   return mangleResult.result();
 }
@@ -1574,7 +1575,7 @@ static Node *setParentForOpaqueReturnTypeNodes(Demangler &D, Node *parent,
   setParentForOpaqueReturnTypeNodesImpl(D, *visitedNode, [&] {
     if (!parentID.empty())
       return StringRef(parentID);
-    const auto mangleResult = mangleNode(parent);
+    const auto mangleResult = mangleNode(parent, false);
     assert(mangleResult.isSuccess());
     parentID = mangleResult.result();
     return StringRef(parentID);

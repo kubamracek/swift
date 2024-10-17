@@ -3147,34 +3147,34 @@ std::optional<std::string> PrintAST::mangledNameToPrint(const Decl *D) {
 
   // For functions, mangle the entity directly.
   if (auto func = dyn_cast<FuncDecl>(D)) {
-    ASTMangler mangler;
+    ASTMangler mangler(D);
     return mangler.mangleEntity(func);
   }
 
   // For initializers, mangle the allocating initializer.
   if (auto init = dyn_cast<ConstructorDecl>(D)) {
-    ASTMangler mangler;
+    ASTMangler mangler(D);
     return mangler.mangleConstructorEntity(init, /*isAllocating=*/true);
   }
 
   // For global and static variables, mangle the entity directly.
   if (auto var = dyn_cast<VarDecl>(D)) {
     if (!var->isInstanceMember()) {
-      ASTMangler mangler;
+      ASTMangler mangler(D);
       return mangler.mangleEntity(var);
     }
   }
 
   // For subscripts, mangle the entity directly.
   if (auto subscript = dyn_cast<SubscriptDecl>(D)) {
-    ASTMangler mangler;
+    ASTMangler mangler(D);
     return mangler.mangleEntity(subscript);
   }
 
   // For nominal types, mangle the type metadata accessor.
   if (auto nominal = dyn_cast<NominalTypeDecl>(D)) {
     if (!isa<ProtocolDecl>(nominal) && !nominal->getGenericSignature()) {
-      ASTMangler mangler;
+      ASTMangler mangler(D);
       std::string name = mangler.mangleNominalType(nominal);
       name += "Ma";
       return name;

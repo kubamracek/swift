@@ -1,3 +1,4 @@
+
 //===--- Decl.cpp - Swift Language Decl ASTs ------------------------------===//
 //
 // This source file is part of the Swift.org open source project
@@ -3829,7 +3830,7 @@ OpaqueTypeDecl *ValueDecl::getOpaqueResultTypeDecl() const {
     auto file = cast<FileUnit>(getDeclContext()->getModuleScopeContext());
     // Don't look up when the decl is from source, otherwise a cycle will happen.
     if (file->getKind() == FileUnitKind::SerializedAST) {
-      Mangle::ASTMangler mangler;
+      Mangle::ASTMangler mangler(this);
       auto name = mangler.mangleOpaqueTypeDecl(this);
       return file->lookupOpaqueResultType(name);
     }
@@ -6151,7 +6152,7 @@ ClassDecl::MetaclassKind ClassDecl::getMetaclassKind() const {
 static StringRef mangleObjCRuntimeName(const NominalTypeDecl *nominal,
                                        llvm::SmallVectorImpl<char> &buffer) {
   {
-    Mangle::ASTMangler Mangler;
+    Mangle::ASTMangler Mangler(static_cast<const Decl *>(nominal));
     std::string MangledName = Mangler.mangleObjCRuntimeName(nominal);
 
     buffer.clear();
@@ -9997,7 +9998,7 @@ Identifier OpaqueTypeDecl::getOpaqueReturnTypeIdentifier() const {
   SmallString<64> mangleBuf;
   {
     llvm::raw_svector_ostream os(mangleBuf);
-    Mangle::ASTMangler mangler;
+    Mangle::ASTMangler mangler(static_cast<const Decl *>(this));
     os << mangler.mangleOpaqueTypeDecl(this);
   }
 
