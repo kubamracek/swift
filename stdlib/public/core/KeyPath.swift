@@ -161,7 +161,6 @@ public class AnyKeyPath: _AppendKeyPath {
     return result
   }
   
-  @_unavailableInEmbedded
   final internal func withBuffer<T>(_ f: (KeyPathBuffer) throws -> T) rethrows -> T {
     defer { _fixLifetime(self) }
     
@@ -171,7 +170,6 @@ public class AnyKeyPath: _AppendKeyPath {
 
   @usableFromInline // Exposed as public API by MemoryLayout<Root>.offset(of:)
   internal var _storedInlineOffset: Int? {
-    #if !$Embedded
     return withBuffer {
       var buffer = $0
 
@@ -193,16 +191,9 @@ public class AnyKeyPath: _AppendKeyPath {
         if optNextType == nil { return .some(offset) }
       }
     }
-    #else
-    // compiler optimizes _storedInlineOffset into a direct offset computation,
-    // and in embedded Swift we don't allow runtime keypaths, so this fatalError
-    // is unreachable at runtime
-    fatalError()
-    #endif
   }
 }
 
-@_unavailableInEmbedded
 extension AnyKeyPath: Hashable {
   /// The hash value.
   final public var hashValue: Int {
@@ -238,9 +229,9 @@ extension AnyKeyPath: Hashable {
       return true
     }
     // Short-circuit differently-typed key paths
-    if type(of: a) != type(of: b) {
-      return false
-    }
+    //if type(of: a) != type(of: b) {
+      //return false
+    //}
     return a.withBuffer {
       var aBuffer = $0
       return b.withBuffer {
@@ -393,11 +384,7 @@ public class KeyPath<Root, Value>: PartialKeyPath<Root> {
   }
   
   deinit {
-    #if !$Embedded
     withBuffer { $0.destroy() }
-    #else
-    fatalError() // unreachable, keypaths in embedded Swift are compile-time
-    #endif
   }
 }
 
@@ -583,7 +570,6 @@ internal struct ComputedPropertyID: Hashable {
   }
 }
 
-@_unavailableInEmbedded
 internal struct ComputedAccessorsPtr {
 #if INTERNAL_CHECKS_ENABLED
   internal let header: RawKeyPathComponent.Header
@@ -665,7 +651,6 @@ internal struct ComputedAccessorsPtr {
   }
 }
 
-@_unavailableInEmbedded
 internal struct ComputedArgumentWitnessesPtr {
   internal let _value: UnsafeRawPointer
 
@@ -741,7 +726,6 @@ internal struct ComputedArgumentWitnessesPtr {
   }
 }
 
-@_unavailableInEmbedded
 internal enum KeyPathComponent {
   internal struct ArgumentRef {
     internal var data: UnsafeRawBufferPointer
@@ -789,7 +773,6 @@ internal enum KeyPathComponent {
   case optionalWrap
 }
 
-@_unavailableInEmbedded
 extension KeyPathComponent: Hashable {
   internal static func ==(a: KeyPathComponent, b: KeyPathComponent) -> Bool {
     switch (a, b) {
@@ -941,7 +924,6 @@ internal final class ClassHolder<ProjectionType> {
 }
 
 // A class that triggers writeback to a pointer when destroyed.
-@_unavailableInEmbedded
 internal final class MutatingWritebackBuffer<CurValue, NewValue> {
   internal let previous: AnyObject?
   internal let base: UnsafeMutablePointer<CurValue>
@@ -970,7 +952,6 @@ internal final class MutatingWritebackBuffer<CurValue, NewValue> {
 }
 
 // A class that triggers writeback to a non-mutated value when destroyed.
-@_unavailableInEmbedded
 internal final class NonmutatingWritebackBuffer<CurValue, NewValue> {
   internal let previous: AnyObject?
   internal let base: CurValue
@@ -1018,7 +999,6 @@ internal enum KeyPathComputedIDResolution {
   case functionCall
 }
 
-@_unavailableInEmbedded
 internal struct RawKeyPathComponent {
   internal var header: Header
   internal var body: UnsafeRawBufferPointer
@@ -1702,6 +1682,7 @@ internal struct RawKeyPathComponent {
     }
   }
 
+  @_unavailableInEmbedded
   internal func _projectReadOnly<CurValue, NewValue, LeafValue>(
     _ base: CurValue,
     to: NewValue.Type,
@@ -1768,6 +1749,7 @@ internal struct RawKeyPathComponent {
     }
   }
 
+  @_unavailableInEmbedded
   internal func _projectMutableAddress<CurValue, NewValue>(
     _ base: UnsafeRawPointer,
     from _: CurValue.Type,
@@ -1874,8 +1856,7 @@ internal func _pop<T : BitwiseCopyable>(from: inout UnsafeRawBufferPointer,
     count: from.count - byteCount)
   return result
 }
-  
-@_unavailableInEmbedded
+
 internal struct KeyPathBuffer {
   internal var data: UnsafeRawBufferPointer
   internal var trivial: Bool

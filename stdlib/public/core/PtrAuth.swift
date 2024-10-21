@@ -195,7 +195,7 @@ extension UnsafeRawPointer {
       oldKey: .processIndependentCode,
       oldDiscriminator: srcDiscriminator,
       newKey: .processIndependentCode,
-      newDiscriminator: _PtrAuth.discriminator(for: type))
+      newDiscriminator: 0)
 
     return unsafeBitCast(resigned, to: type)
   }
@@ -219,7 +219,7 @@ extension UnsafeRawPointer {
       oldKey: .processIndependentCode,
       oldDiscriminator: srcDiscriminator,
       newKey: .processIndependentCode,
-      newDiscriminator: _PtrAuth.discriminator(for: T.self))
+      newDiscriminator: 0)
 
     return .some(unsafeBitCast(resigned, to: T.self))
   }
